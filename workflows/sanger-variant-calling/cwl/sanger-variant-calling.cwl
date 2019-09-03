@@ -10,10 +10,6 @@ inputs:
   snv_indel: File
   cnv_sv: File
   qcset: File
-  tumour: File
-  tumourIdx: File
-  normal: File
-  normalIdx: File
   exclude: string
   species: string?
   assembly: string?
@@ -27,6 +23,7 @@ inputs:
   endpoint_url: string
   bucket_name: string
   credentials_file: File
+  payload_schema_version: string
   normal_payload: File
   tumour_payload: File
   tumour_seq_exp_payload: File
@@ -59,7 +56,7 @@ steps:
       bucket_name: bucket_name
       payload_json: normal_payload
       s3_credential_file: credentials_file
-    out: [ download_file, download_file_index ]
+    out: [ download_file ]
 
   download_tumour:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.0/tools/s3-download/s3-download.cwl
@@ -68,7 +65,7 @@ steps:
       bucket_name: bucket_name
       payload_json: tumour_payload
       s3_credential_file: credentials_file
-    out: [ download_file, download_file_index ]
+    out: [ download_file ]
 
 
   generate_bas_normal:
@@ -77,7 +74,7 @@ steps:
       input: download_normal/download_file
       num_threads: num_threads
       ref_file: ref_file
-    out: [ bam_and_bas ]
+    out: [ bam_and_bas, index_file ]
 
   generate_bas_tumour:
     run: https://raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.1.0/tools/generate-bas/generate-bas.cwl
@@ -85,7 +82,7 @@ steps:
       input: download_tumour/download_file
       num_threads: num_threads
       ref_file: ref_file
-    out: [ bam_and_bas ]
+    out: [ bam_and_bas, index_file ]
 
   sanger_calling:
     run: https://raw.githubusercontent.com/cancerit/dockstore-cgpwgs/2.1.0/cwls/cgpwgs.cwl
@@ -96,9 +93,9 @@ steps:
       cnv_sv: cnv_sv
       qcset: qcset
       tumour: generate_bas_tumour/bam_and_bas
-      tumourIdx: download_tumour/download_file_index
+      tumourIdx: generate_bas_tumour/index_file
       normal: generate_bas_normal/bam_and_bas
-      normalIdx: download_normal/download_file_index
+      normalIdx: generate_bas_normal/index_file
       exclude: exclude
       species: species
       assembly: assembly
