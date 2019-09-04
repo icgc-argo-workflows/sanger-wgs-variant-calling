@@ -24,12 +24,18 @@ inputs:
   bucket_name: string
   credentials_file: File
   payload_schema_version: string
-  normal_payload: File
-  tumour_payload: File
-  tumour_seq_exp_payload: File
   sanger_ssm_pattern: string
-  ssm_bundle_type: string
-
+  sanger_ssm_call_bundle_type: string
+  dna_alignment_bundle_type: string
+  sequencing_experiment_bundle_type: string
+  seq_format: string?
+  library_strategy: string
+  program: string
+  donor_submitter_id: string
+  normal_sample_submitter_id: string
+  tumour_sample_submitter_id: string
+  normal_specimen_type: string
+  tumour_specimen_type: string
 
 outputs:
   run_params:
@@ -49,12 +55,57 @@ outputs:
     outputSource: sanger_ssm_payload_s3_submit/payload
 
 steps:
+  get_payload_aligned_normal:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
+    in:
+      endpoint_url: endpoint_url
+      bucket_name: bucket_name
+      s3_credential_file: credentials_file
+      bundle_type: dna_alignment_bundle_type
+      seq_format: seq_format
+      library_strategy: library_strategy
+      program: program
+      donor_submitter_id: donor_submitter_id
+      sample_submitter_id: normal_sample_submitter_id
+      specimen_type: normal_specimen_type
+    out: [ payload ]
+
+  get_payload_aligned_tumour:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
+    in:
+      endpoint_url: endpoint_url
+      bucket_name: bucket_name
+      s3_credential_file: credentials_file
+      bundle_type: dna_alignment_bundle_type
+      seq_format: seq_format
+      library_strategy: library_strategy
+      program: program
+      donor_submitter_id: donor_submitter_id
+      sample_submitter_id: tumour_sample_submitter_id
+      specimen_type: tumour_specimen_type
+    out: [ payload ]
+
+  get_payload_tumour_sequencing_experiment:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
+    in:
+      endpoint_url: endpoint_url
+      bucket_name: bucket_name
+      s3_credential_file: credentials_file
+      bundle_type: sequencing_experiment_bundle_type
+      library_strategy: library_strategy
+      program: program
+      donor_submitter_id: donor_submitter_id
+      sample_submitter_id: tumour_sample_submitter_id
+      specimen_type: tumour_specimen_type
+    out: [ payload ]
+
+
   download_normal:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.0/tools/s3-download/s3-download.cwl
     in:
       endpoint_url: endpoint_url
       bucket_name: bucket_name
-      payload_json: normal_payload
+      payload_json: get_payload_aligned_normal/payload
       s3_credential_file: credentials_file
     out: [ download_file ]
 
@@ -63,7 +114,7 @@ steps:
     in:
       endpoint_url: endpoint_url
       bucket_name: bucket_name
-      payload_json: tumour_payload
+      payload_json: get_payload_aligned_tumour/payload
       s3_credential_file: credentials_file
     out: [ download_file ]
 
@@ -134,13 +185,13 @@ steps:
   sanger_ssm_payload_generate:
     run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
     in:
-      bundle_type: ssm_bundle_type
+      bundle_type: sanger_ssm_call_bundle_type
       payload_schema_version: payload_schema_version
       file_to_upload: extract_sanger_ssm/output_file
       input_metadata_aligned_seq:
         source:
-          - normal_payload
-          - tumour_payload
+          - get_payload_aligned_normal/payload
+          - get_payload_aligned_tumour/payload
         linkMerge: merge_flattened
     out:
       [ payload ]
@@ -148,7 +199,7 @@ steps:
   sanger_ssm_payload_s3_submit:
     run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-tools/payload-ceph-submission.0.1.4/tools/payload-ceph-submission/payload-ceph-submission.cwl
     in:
-      metadata: tumour_seq_exp_payload
+      metadata: get_payload_tumour_sequencing_experiment/payload
       payload: sanger_ssm_payload_generate/payload
       credentials_file: credentials_file
       endpoint_url: endpoint_url
@@ -162,8 +213,8 @@ steps:
       endpoint_url: endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
-      bundle_type: ssm_bundle_type
-      upload_file: extract-sanger-ssm/output_file
+      bundle_type: sanger_ssm_call_bundle_type
+      upload_file: extract_sanger_ssm/output_file
       payload_jsons:
         source:
          - sanger_ssm_payload_s3_submit/payload
