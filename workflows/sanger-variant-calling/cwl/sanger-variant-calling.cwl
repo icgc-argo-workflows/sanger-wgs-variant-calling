@@ -1,3 +1,5 @@
+#!/usr/bin/env cwl-runner
+
 class: Workflow
 cwlVersion: v1.1
 id: sanger-variant-calling
@@ -49,7 +51,7 @@ outputs:
     outputSource: sanger_calling/global_time
   sanger_ssm:
     type: File
-    outputSource: extract_sanger_ssm/output_file
+    outputSource: extract_sanger_ssm/output_files
   sanger_ssm_payload:
     type: File
     outputSource: sanger_ssm_payload_s3_submit/payload
@@ -125,7 +127,7 @@ steps:
       input: download_normal/download_file
       num_threads: num_threads
       ref_file: ref_file
-    out: [ bam_and_bas, index_file ]
+    out: [ bam_and_bas, bai ]
 
   generate_bas_tumour:
     run: https://raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.1.0/tools/generate-bas/generate-bas.cwl
@@ -133,7 +135,7 @@ steps:
       input: download_tumour/download_file
       num_threads: num_threads
       ref_file: ref_file
-    out: [ bam_and_bas, index_file ]
+    out: [ bam_and_bas, bai ]
 
   sanger_calling:
     run: https://raw.githubusercontent.com/cancerit/dockstore-cgpwgs/2.1.0/cwls/cgpwgs.cwl
@@ -144,9 +146,9 @@ steps:
       cnv_sv: cnv_sv
       qcset: qcset
       tumour: generate_bas_tumour/bam_and_bas
-      tumourIdx: generate_bas_tumour/index_file
+      tumourIdx: generate_bas_tumour/bai
       normal: generate_bas_normal/bam_and_bas
-      normalIdx: generate_bas_normal/index_file
+      normalIdx: generate_bas_normal/bai
       exclude: exclude
       species: species
       assembly: assembly
@@ -180,14 +182,14 @@ steps:
       tarball: repack_sanger_results/caveman
       pattern: sanger_ssm_pattern
     out:
-      [ output_file ]
+      [ output_files ]
 
   sanger_ssm_payload_generate:
     run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
     in:
       bundle_type: sanger_ssm_call_bundle_type
       payload_schema_version: payload_schema_version
-      file_to_upload: extract_sanger_ssm/output_file
+      file_to_upload: extract_sanger_ssm/output_files
       input_metadata_aligned_seq:
         source:
           - get_payload_aligned_normal/payload
@@ -214,8 +216,9 @@ steps:
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: sanger_ssm_call_bundle_type
-      upload_file: extract_sanger_ssm/output_file
+      upload_file: extract_sanger_ssm/output_files
       payload_jsons:
         source:
          - sanger_ssm_payload_s3_submit/payload
         linkMerge: merge_flattened
+    out: []
