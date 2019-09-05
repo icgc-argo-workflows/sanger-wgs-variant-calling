@@ -185,7 +185,7 @@ steps:
       [ output_files ]
 
   sanger_ssm_payload_generate:
-    run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
     in:
       bundle_type: sanger_ssm_call_bundle_type
       payload_schema_version: payload_schema_version
@@ -199,7 +199,7 @@ steps:
       [ payload ]
 
   sanger_ssm_payload_s3_submit:
-    run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-tools/payload-ceph-submission.0.1.4/tools/payload-ceph-submission/payload-ceph-submission.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-ceph-submission.0.1.4/tools/payload-ceph-submission/payload-ceph-submission.cwl
     in:
       metadata: get_payload_tumour_sequencing_experiment/payload
       payload: sanger_ssm_payload_generate/payload
@@ -210,7 +210,7 @@ steps:
       [ payload ]
 
   sanger_ssm_s3_upload:
-    run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl
     in:
       endpoint_url: endpoint_url
       bucket_name: bucket_name
