@@ -138,7 +138,7 @@ steps:
     out: [ bam_and_bas, bai ]
 
   sanger_calling:
-    run: https://raw.githubusercontent.com/cancerit/dockstore-cgpwgs/2.1.0/cwls/cgpwgs.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-1/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller.cwl
     in:
       reference: reference
       annot: annot
