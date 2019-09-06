@@ -51,7 +51,7 @@ outputs:
     outputSource: sanger_calling/global_time
   sanger_ssm:
     type: File
-    outputSource: extract_sanger_ssm/output_files
+    outputSource: extract_sanger_ssm/output_file
   sanger_ssm_payload:
     type: File
     outputSource: sanger_ssm_payload_s3_submit/payload
@@ -182,14 +182,14 @@ steps:
       tarball: repack_sanger_results/caveman
       pattern: sanger_ssm_pattern
     out:
-      [ output_files ]
+      [ output_file ]
 
   sanger_ssm_payload_generate:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
     in:
       bundle_type: sanger_ssm_call_bundle_type
       payload_schema_version: payload_schema_version
-      file_to_upload: extract_sanger_ssm/output_files
+      file_to_upload: extract_sanger_ssm/output_file
       input_metadata_aligned_seq:
         source:
           - get_payload_aligned_normal/payload
@@ -216,7 +216,7 @@ steps:
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: sanger_ssm_call_bundle_type
-      upload_file: extract_sanger_ssm/output_files
+      upload_file: extract_sanger_ssm/output_file
       payload_jsons:
         source:
          - sanger_ssm_payload_s3_submit/payload
