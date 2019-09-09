@@ -4,7 +4,11 @@ class: Workflow
 cwlVersion: v1.1
 id: sanger-variant-calling
 
-requirements: []
+requirements:
+- class: StepInputExpressionRequirement
+- class: MultipleInputFeatureRequirement
+- class: SubworkflowFeatureRequirement
+- class: ScatterFeatureRequirement
 
 inputs:
   reference: File
