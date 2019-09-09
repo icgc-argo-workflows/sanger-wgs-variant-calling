@@ -125,7 +125,7 @@ workflow:
     sanger_caller.tool_url:
       type: string
       is_file: true
-      default: "[sanger-wgs-variant-caller.cwl]https://raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-1/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller.cwl"
+      default: "[sanger-wgs-variant-caller.cwl]https://raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-2/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller.cwl"
     repack_sanger_results.tool_url:
       type: string
       is_file: true
@@ -265,11 +265,11 @@ workflow:
         bundle_type: sanger_ssm_call_bundle_type
         payload_schema_version: payload_schema_version
         files_to_upload:
-            - output_file@extract_sanger_ssm
+        - output_file@extract_sanger_ssm
         input_metadata_lane_seq: payload@get_payload_tumour_sequencing_experiment
         input_metadata_aligned_seq:
-            - payload@get_payload_aligned_normal
-            - pyaload@get_payload_aligned_tumour
+        - payload@get_payload_aligned_normal
+        - pyaload@get_payload_aligned_tumour
         credentials_file: credentials_file
         endpoint_url: endpoint_url
         bucket_name: bucket_name
@@ -284,7 +284,7 @@ workflow:
         bundle_type: sanger_ssm_call_bundle_type
         upload_file: output_file@extract_sanger_ssm
         payload_jsons:
-          - payload@sanger_ssm_payload_gen_and_s3_submit_wf
+        - payload@sanger_ssm_payload_gen_and_s3_submit_wf
         tool_url: s3_upload.tool_url
 
 
@@ -361,6 +361,8 @@ tools:
   sanger_caller:
     command: cwltool_launcher.py
     input:
+      num_threads:
+        type: integer
       reference:
         type: string
         is_file: true
