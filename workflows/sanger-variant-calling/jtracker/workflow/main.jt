@@ -358,7 +358,7 @@ tools:
         type: string
         is_file: true
 
-  sanger_calling:
+  sanger_caller:
     command: cwltool_launcher.py
     input:
       reference:
