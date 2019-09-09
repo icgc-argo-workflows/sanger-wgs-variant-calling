@@ -1,8 +1,8 @@
 # This workflow
 
 workflow:
-  name:  dna-seq-alignment
-  version: "0.2.2"
+  name:  sanger-variant-calling
+  version: "0.1.0"
 
   input:
     song_collab_url:
@@ -56,11 +56,11 @@ workflow:
       default: 3.65
     num_threads:
       type: integer
-      default: 19
+      default: 18
     ref_file:
       type: string
       is_file: true
-      default: "[GRCh38_hla_decoy_ebv.fa]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa"
+      default: "[GRCh38_hla_decoy_ebv.fa]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa.fai"
     endpoint_url:
       type: string
       default: "https://object.cancercollaboratory.org:9080"
@@ -226,6 +226,7 @@ workflow:
     sanger_calling:
       tool: sanger_caller
       input:
+        num_threads: num_threads
         reference: reference
         annot: annot
         snv_indel: snv_indel
@@ -481,6 +482,8 @@ tools:
         type: File
       upload_file:
         type: File
-
+      tool_url:
+        type: string
+        is_file: true
 
 
