@@ -48,7 +48,7 @@ steps:
     in:
       input: tumour
     out: [ bam_and_bas ]
-  sanger-calling:
+  sanger_calling:
     run: https://raw.githubusercontent.com/cancerit/dockstore-cgpwgs/2.1.0/cwls/cgpwgs.cwl
     in:
       reference: reference
