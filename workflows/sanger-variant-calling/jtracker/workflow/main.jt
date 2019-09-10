@@ -60,7 +60,7 @@ workflow:
     ref_file:
       type: string
       is_file: true
-      default: "[GRCh38_hla_decoy_ebv.fa]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa.fai"
+      default: "[GRCh38_hla_decoy_ebv.fa.fai]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa.fai"
     endpoint_url:
       type: string
       default: "https://object.cancercollaboratory.org:9080"
