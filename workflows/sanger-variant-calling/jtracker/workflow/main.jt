@@ -269,7 +269,7 @@ workflow:
         input_metadata_lane_seq: payload@get_payload_tumour_sequencing_experiment
         input_metadata_aligned_seq:
         - payload@get_payload_aligned_normal
-        - pyaload@get_payload_aligned_tumour
+        - payload@get_payload_aligned_tumour
         credentials_file: credentials_file
         endpoint_url: endpoint_url
         bucket_name: bucket_name
