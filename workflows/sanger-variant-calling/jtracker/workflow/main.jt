@@ -411,7 +411,7 @@ tools:
         is_file: true
 
   repack_sanger_results:
-    tool: cwltool_launcher.py
+    command: cwltool_launcher.py
     input:
       input:
         type: string
@@ -421,7 +421,7 @@ tools:
         is_file: true
 
   extract_files_from_tarball:
-    tool: cwltool_launcher.py
+    command: cwltool_launcher.py
     input:
       tarball:
         type: string
