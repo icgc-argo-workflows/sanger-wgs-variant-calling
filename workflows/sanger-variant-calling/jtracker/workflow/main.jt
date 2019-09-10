@@ -145,7 +145,7 @@ workflow:
     s3_upload.tool_url:
       type: string
       is_file: true
-      default: "[s3-upload.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.2/tools/s3-upload/s3-upload.cwl"
+      default: "[s3-upload.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl"
 
 
   tasks:
