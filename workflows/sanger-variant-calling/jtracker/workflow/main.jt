@@ -53,7 +53,7 @@ workflow:
       default: 1.0
     ploidy:
       type: float
-      default: 3.65
+      default: 2.0
     num_threads:
       type: integer
       default: 18
