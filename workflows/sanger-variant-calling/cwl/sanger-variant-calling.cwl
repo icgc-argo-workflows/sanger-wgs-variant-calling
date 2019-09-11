@@ -7,8 +7,6 @@ id: sanger-variant-calling
 requirements:
 - class: StepInputExpressionRequirement
 - class: MultipleInputFeatureRequirement
-- class: SubworkflowFeatureRequirement
-- class: ScatterFeatureRequirement
 
 inputs:
   reference: File
