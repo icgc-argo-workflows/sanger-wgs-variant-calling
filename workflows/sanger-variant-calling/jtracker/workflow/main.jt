@@ -14,23 +14,23 @@ workflow:
     reference:
       type: string
       is_file: true
-      default: "[reference]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/core_ref_GRCh38_hla_decoy_ebv.tar.gz"
+      default: "[core_ref_GRCh38_hla_decoy_ebv.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/core_ref_GRCh38_hla_decoy_ebv.tar.gz"
     annot:
       type: string
       is_file: true
-      default: "[annot]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz"
+      default: "[VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz"
     snv_indel:
       type: string
       is_file: true
-      default: "[snv_indel]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz"
+      default: "[SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz"
     cnv_sv:
       type: string
       is_file: true
-      default: "[cnv_sv]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/CNV_SV_ref_GRCh38_hla_decoy_ebv_brass6+.tar.gz"
+      default: "[CNV_SV_ref_GRCh38_hla_decoy_ebv_brass6+.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/CNV_SV_ref_GRCh38_hla_decoy_ebv_brass6+.tar.gz"
     qcset:
       type: string
       is_file: true
-      default: "[qcset]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/qcGenotype_GRCh38_hla_decoy_ebv.tar.gz"
+      default: "[qcGenotype_GRCh38_hla_decoy_ebv.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/qcGenotype_GRCh38_hla_decoy_ebv.tar.gz"
     exclude:
       type: string
       default: "chrUn%,HLA%,%_alt,%_random,chrM,chrEBV"
@@ -61,7 +61,7 @@ workflow:
       type: string
       is_file: true
       default: "[GRCh38_hla_decoy_ebv.fa.fai]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa.fai"
-    endpoint_url:
+    object_store_endpoint_url:
       type: string
       default: "https://object.cancercollaboratory.org:9080"
     bucket_name:
@@ -74,7 +74,7 @@ workflow:
     payload_schema_version:
       type: string
       default: "0.1.0-rc.1"
-    sanger_ssm_pattern:
+    sanger_ssm_vcf_name_pattern:
       type: string
       default: "flagged.muts"
     sanger_ssm_call_bundle_type:
@@ -152,7 +152,7 @@ workflow:
     get_payload_aligned_normal:
       tool: ceph_get_payload
       input:
-        endpoint_url: endpoint_url
+        endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         s3_credential_file: credentials_file
         bundle_type: dna_alignment_bundle_type
@@ -167,7 +167,7 @@ workflow:
     get_payload_aligned_tumour:
       tool: ceph_get_payload
       input:
-        endpoint_url: endpoint_url
+        endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         s3_credential_file: credentials_file
         bundle_type: dna_alignment_bundle_type
@@ -182,7 +182,7 @@ workflow:
     get_payload_tumour_sequencing_experiment:
       tool: ceph_get_payload
       input:
-        endpoint_url: endpoint_url
+        endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         s3_credential_file: credentials_file
         bundle_type: sequencing_experiment_bundle_type
@@ -196,7 +196,7 @@ workflow:
     download_normal:
       tool: s3_download
       input:
-        endpoint_url: endpoint_url
+        endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         payload_json: payload@get_payload_aligned_normal
         s3_credential_file: credentials_file
@@ -205,7 +205,7 @@ workflow:
     download_tumour:
       tool: s3_download
       input:
-        endpoint_url: endpoint_url
+        endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         payload_json: payload@get_payload_aligned_tumour
         s3_credential_file: credentials_file
@@ -260,7 +260,7 @@ workflow:
       tool: extract_files_from_tarball
       input:
         tarball: caveman@repack_sanger_results
-        pattern: sanger_ssm_pattern
+        pattern: sanger_ssm_vcf_name_pattern
         tool_url: extract_files_from_tarball.tool_url
 
     sanger_ssm_payload_generate:
@@ -280,14 +280,14 @@ workflow:
         metadata: payload@get_payload_tumour_sequencing_experiment
         payload: payload@sanger_ssm_payload_generate
         credentials_file: credentials_file
-        endpoint_url: endpoint_url
+        endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         tool_url: payload_ceph_submission.tool_url
 
     sanger_ssm_s3_upload:
       tool: s3_upload
       input:
-        endpoint_url: endpoint_url
+        endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         s3_credential_file: credentials_file
         bundle_type: sanger_ssm_call_bundle_type
