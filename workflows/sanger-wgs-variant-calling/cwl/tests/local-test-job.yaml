@@ -18,15 +18,15 @@ species: "human"
 assembly: "GRCh38"
 cavereads: 800000
 purity: 1.0
-ploidy: 3.65
-num_threads: 19
+ploidy: 2.0
+num_threads: 18
 ref_file:
   path: https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa
   class: File
 credentials_file:
   class: File
   path: input/fake-credentials
-endpoint_url: "https://object.cancercollaboratory.org:9080"
+object_store_endpoint_url: "https://object.cancercollaboratory.org:9080"
 bucket_name: "argo-test"
 payload_schema_version: "0.1.0-rc.1"
 library_strategy: "WXS"
@@ -36,7 +36,7 @@ normal_sample_submitter_id: "PD3890b"
 normal_specimen_type: "Normal - blood derived"
 tumour_sample_submitter_id: "PD3890a"
 tumour_specimen_type: "Primary tumour - solid tissue"
-sanger_ssm_pattern: "flagged.muts"
+sanger_ssm_vcf_name_pattern: "flagged.muts"
 sanger_ssm_call_bundle_type: "sanger_ssm_call"
 dna_alignment_bundle_type: "dna_alignment"
 sequencing_experiment_bundle_type: "sequencing_experiment"
