@@ -2,7 +2,7 @@
 
 class: Workflow
 cwlVersion: v1.1
-id: sanger-variant-calling
+id: sanger-wgs-variant-calling
 
 requirements:
 - class: StepInputExpressionRequirement
@@ -23,12 +23,14 @@ inputs:
   purity: float?
   ploidy: float?
   num_threads: int?
-  ref_file: File?
-  endpoint_url: string
+  ref_file:
+    type: File?
+    secondaryFiles: ['.fai?']
+  object_store_endpoint_url: string
   bucket_name: string
   credentials_file: File
   payload_schema_version: string
-  sanger_ssm_pattern: string
+  sanger_ssm_vcf_name_pattern: string
   sanger_ssm_call_bundle_type: string
   dna_alignment_bundle_type: string
   sequencing_experiment_bundle_type: string
@@ -62,7 +64,7 @@ steps:
   get_payload_aligned_normal:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
-      endpoint_url: endpoint_url
+      endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: dna_alignment_bundle_type
@@ -77,7 +79,7 @@ steps:
   get_payload_aligned_tumour:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
-      endpoint_url: endpoint_url
+      endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: dna_alignment_bundle_type
@@ -92,7 +94,7 @@ steps:
   get_payload_tumour_sequencing_experiment:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
-      endpoint_url: endpoint_url
+      endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: sequencing_experiment_bundle_type
@@ -107,7 +109,7 @@ steps:
   download_normal:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.0/tools/s3-download/s3-download.cwl
     in:
-      endpoint_url: endpoint_url
+      endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       payload_json: get_payload_aligned_normal/payload
       s3_credential_file: credentials_file
@@ -116,7 +118,7 @@ steps:
   download_tumour:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.0/tools/s3-download/s3-download.cwl
     in:
-      endpoint_url: endpoint_url
+      endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       payload_json: get_payload_aligned_tumour/payload
       s3_credential_file: credentials_file
@@ -183,7 +185,7 @@ steps:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.0/tools/extract-files-from-tarball/extract-files-from-tarball.cwl
     in:
       tarball: repack_sanger_results/caveman
-      pattern: sanger_ssm_pattern
+      pattern: sanger_ssm_vcf_name_pattern
     out:
       [ output_file ]
 
@@ -207,7 +209,7 @@ steps:
       metadata: get_payload_tumour_sequencing_experiment/payload
       payload: sanger_ssm_payload_generate/payload
       credentials_file: credentials_file
-      endpoint_url: endpoint_url
+      endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
     out:
       [ payload ]
@@ -215,7 +217,7 @@ steps:
   sanger_ssm_s3_upload:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl
     in:
-      endpoint_url: endpoint_url
+      endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: sanger_ssm_call_bundle_type
