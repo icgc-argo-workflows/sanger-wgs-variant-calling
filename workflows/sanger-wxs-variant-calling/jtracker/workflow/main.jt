@@ -14,15 +14,15 @@ workflow:
     reference:
       type: string
       is_file: true
-      default: "[core_ref_GRCh38_hla_decoy_ebv.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/core_ref_GRCh38_hla_decoy_ebv.tar.gz"
+      default: "[core_ref_GRCh38_hla_decoy_ebv.tar.gz]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/sanger-variant-calling/core_ref_GRCh38_hla_decoy_ebv.tar.gz"
     annot:
       type: string
       is_file: true
-      default: "[VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz"
+      default: "[VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/sanger-variant-calling/VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz"
     snv_indel:
       type: string
       is_file: true
-      default: "[SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz]http://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz"
+      default: "[SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/sanger-variant-calling/SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz"
     exclude:
       type: string
       default: "chrUn%,HLA%,%_alt,%_random,chrM,chrEBV"
