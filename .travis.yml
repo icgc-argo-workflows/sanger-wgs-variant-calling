@@ -1,0 +1,13 @@
+language: python
+
+python:
+  - "3.6"
+
+services:
+  - docker
+
+install:
+  - "pip install -r tests/requirements-test.txt"
+
+script: 
+  - pytest -v
