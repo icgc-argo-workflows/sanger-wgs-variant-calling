@@ -41,7 +41,7 @@ outputs:
 
 steps:
   mutect2:
-    run: https://raw.githubusercontent.com/icgc-argo/gatk-tools/gatk-mutect2.4.1.3.0-1.2/tools/gatk-mutect2/gatk-mutect2.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/gatk-tools/gatk-mutect2.4.1.3.0-1.3/tools/gatk-mutect2/gatk-mutect2.cwl
     scatter: intervals
     in:
       intervals: interval_files

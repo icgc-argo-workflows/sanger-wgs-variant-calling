@@ -15,5 +15,5 @@ normal_reads:  # type "File" (optional)
 ref_fa:  # type "File"
     class: File
     path: reference/tiny-grch38-chr11-530001-537000.fa
-f1r2_tar_gz: f1r2.tar.gz
+f1r2_tar_gz: HCC1143-mutect2.f1r2.tar.gz
 output_vcf: HCC1143-mutect2.unfiltered.vcf.gz
