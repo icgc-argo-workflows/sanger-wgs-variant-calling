@@ -3,7 +3,6 @@ cwlVersion: v1.1
 id: mutect2-scatter
 
 requirements:
-- class: StepInputExpressionRequirement
 - class: ScatterFeatureRequirement
 
 inputs:
@@ -24,6 +23,7 @@ inputs:
     type: File?
     secondaryFiles: ['.idx?', '.tbi?']
   f1r2_tar_gz: string?
+  bam_output: string?
 
 outputs:
   unfiltered_vcfs:
@@ -53,6 +53,7 @@ steps:
       germline_resource: germline_resource
       pon: pon
       f1r2_tar_gz: f1r2_tar_gz
+      bam_output: bam_output
     out:
     - unfiltered_vcf
     - mutect_stats
