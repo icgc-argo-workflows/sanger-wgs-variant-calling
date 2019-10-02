@@ -84,7 +84,7 @@ steps:
       tumour_reads: tumour_reads
       normal_reads: normal_reads
       output_vcf: unfiltered_vcf_name
-      bam_output: bam_output_name
+      bam_output_name: bam_output_name
       germline_resource: germline_resource
       pon: pon
       intervals: split_intervals/interval_files
