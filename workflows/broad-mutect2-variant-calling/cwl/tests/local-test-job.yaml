@@ -1,0 +1,36 @@
+jvm_mem: 1000
+ref_fa:
+    class: File
+    path: reference/tiny-grch38-chr11-530001-537000.fa
+ref_dict:
+    class: File
+    path: reference/tiny-grch38-chr11-530001-537000.dict
+intervals:
+    class: File
+    path: data/my-intervals.bed
+scatter_count: 1
+tumour_reads:
+  class: File
+  path: data/HCC1143-mini-T/8f879c15-14da-593d-bb76-db866f81ab3a.6.20190927.wgs.grch38.bam
+normal_reads:
+  class: File
+  path: data/HCC1143_BL-mini-N/cfa409d0-3236-5f07-8634-a2c0de74c8f2.5.20190927.wgs.grch38.bam
+unfiltered_vcf_name: HCC1143.mutect2.vcf.gz
+bam_output_name: HCC1143.bamout.bam
+f1r2_tar_gz: HCC1143.f1r2.tar.gz
+artifact_prior_table_name: artifact-priors.tar.gz
+variants_for_contamination:
+  class: File
+  path: data/tiny-chr11-exac_common_3.hg38.vcf.gz
+pileup_summary_name: pileups.table
+merge_vcfs_name: merged.vcf.gz
+merged_stats_name: merged.stats
+merged_pileup_name: merged.pipeups.tsv
+segmentation_name: segments.table
+contamination_name: contamination.table
+filtered_vcf_name: filtered.vcf.gz
+bwa_mem_index_image:
+  class: File
+  path: reference/tiny-grch38-chr11-530001-537000.fa.img
+filtered_artifacts_vcf_name: filtered2.vcf.gz
+filtering_stats_name: filtering.stats.txt
