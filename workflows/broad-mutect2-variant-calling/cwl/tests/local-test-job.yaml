@@ -1,36 +1,48 @@
-jvm_mem: 1000
-ref_fa:
-    class: File
-    path: reference/tiny-grch38-chr11-530001-537000.fa
-ref_dict:
-    class: File
-    path: reference/tiny-grch38-chr11-530001-537000.dict
-intervals:
-    class: File
-    path: data/my-intervals.bed
-scatter_count: 1
-tumour_reads:
-  class: File
-  path: data/HCC1143-mini-T/8f879c15-14da-593d-bb76-db866f81ab3a.6.20190927.wgs.grch38.bam
-normal_reads:
-  class: File
-  path: data/HCC1143_BL-mini-N/cfa409d0-3236-5f07-8634-a2c0de74c8f2.5.20190927.wgs.grch38.bam
-unfiltered_vcf_name: HCC1143.mutect2.vcf.gz
-bam_output_name: HCC1143.bamout.bam
-f1r2_tar_gz: HCC1143.f1r2.tar.gz
-artifact_prior_table_name: artifact-priors.tar.gz
-variants_for_contamination:
-  class: File
-  path: data/tiny-chr11-exac_common_3.hg38.vcf.gz
-pileup_summary_name: pileups.table
-merge_vcfs_name: merged.vcf.gz
-merged_stats_name: merged.stats
-merged_pileup_name: merged.pipeups.tsv
-segmentation_name: segments.table
-contamination_name: contamination.table
-filtered_vcf_name: filtered.vcf.gz
+artifact_prior_table_name: HCC1147_chr21.artifact-priors.tar.gz
+bam_output_name: HCC1147_chr21.bamout.bam
+bucket_name: argo-test
 bwa_mem_index_image:
   class: File
-  path: reference/tiny-grch38-chr11-530001-537000.fa.img
-filtered_artifacts_vcf_name: filtered2.vcf.gz
-filtering_stats_name: filtering.stats.txt
+  path: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/GRCh38_hla_decoy_ebv.fa.img"
+contamination_name: HCC1147_chr21.contamination.table
+credentials_file:
+  class: File
+  path: /home/ubuntu/.aws/credentials
+dna_alignment_bundle_type: dna_alignment
+donor_submitter_id: HCC1147_chr21
+f1r2_tar_gz: HCC1147_chr21.f1r2.tar.gz
+filtered_artifacts_vcf_name: HCC1147_chr21.filtered2.vcf.gz
+filtered_vcf_name: HCC1147_chr21.filtered.vcf.gz
+filtering_stats_name: HCC1147_chr21.filtering.stats.txt
+germline_resource:
+  class: File
+  path: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/af-only-gnomad.hg38.vcf.gz"
+jvm_mem: 1000
+library_strategy: WGS
+merge_vcfs_name: HCC1147_chr21.merged.vcf.gz
+merged_pileup_name: HCC1147_chr21.merged.pipeups.tsv
+merged_stats_name: HCC1147_chr21.merged.stats
+normal_sample_submitter_id: HCC1147_BL
+normal_specimen_type: "Normal - blood derived"
+object_store_endpoint_url: "https://object.cancercollaboratory.org:9080"
+payload_schema_version: 0.1.0-rc.1
+pileup_summary_name: pileups.table
+program: CELL-LINE
+ref_dict:
+  class: File
+  path: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.dict"
+ref_fa:
+  class: File
+  path: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa"
+scatter_count: 10
+segmentation_name: HCC1147_chr21.segments.table
+seq_format: bam
+sequencing_experiment_bundle_type: sequencing_experiment
+ssm_call_bundle_type: mutect2_ssm_call
+tumour_sample_submitter_id: HCC1147
+tumour_specimen_type: "Primary tumour - solid tissue"
+unfiltered_vcf_name: HCC1147_chr21.mutect2.vcf.gz
+variants_for_contamination:
+  class: File
+  path: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/small_exac_common_3.hg38.vcf.gz"
+
