@@ -9,49 +9,53 @@ requirements:
 - class: ScatterFeatureRequirement
 
 inputs:
-  jvm_mem: int?
-  ref_fa:
-    type: File
-    secondaryFiles: ['.fai', '^.dict']
-  ref_dict: File
-  intervals: File?
-  scatter_count: int
-  split_intervals_extra_args: string?
-  unfiltered_vcf_name: string
-  bam_output_name: string?
-  germline_resource: File?
-  pon: File?
-  f1r2_tar_gz: string?
-  m2_extra_args: string?
-  variants_for_contamination:
-    type: File
-    secondaryFiles: ['.tbi']
-  pileup_summary_name: string
-  artifact_prior_table_name: string
-  merge_vcfs_name: string
-  merged_stats_name: string
-  merged_pileup_name: string
-  segmentation_name: string
-  contamination_name: string
-  filtered_vcf_name: string
-  bwa_mem_index_image: File
-  filtered_artifacts_vcf_name: string
-  filtering_stats_name: string
-  seq_format: string?
-  library_strategy: string
-  program: string
-  donor_submitter_id: string
-  normal_sample_submitter_id: string
-  tumour_sample_submitter_id: string
-  normal_specimen_type: string
-  tumour_specimen_type: string
-  object_store_endpoint_url: string
-  bucket_name: string
-  credentials_file: File
-  payload_schema_version: string
-  dna_alignment_bundle_type: string
-  sequencing_experiment_bundle_type: string
-  ssm_call_bundle_type: string
+    artifact_prior_table_name: string
+    bam_output_name: string?
+    bucket_name: string
+    bwa_mem_index_image: File
+    contamination_name: string
+    credentials_file: File
+    dna_alignment_bundle_type: string
+    donor_submitter_id: string
+    f1r2_tar_gz: string?
+    filtered_artifacts_vcf_name: string
+    filtered_vcf_name: string
+    filtering_stats_name: string
+    germline_resource: File?
+    intervals: File?
+    jvm_mem: int?
+    library_strategy: string
+    m2_extra_args: string?
+    merge_vcfs_name: string
+    merged_pileup_name: string
+    merged_stats_name: string
+    normal_sample_submitter_id: string
+    normal_specimen_type: string
+    object_store_endpoint_url: string
+    payload_schema_version: string
+    pileup_summary_name: string
+    pon: File?
+    program: string
+    ref_dict: File
+    ref_fa: 
+      secondaryFiles: 
+        - .fai
+        - ^.dict
+      type: File
+    scatter_count: int
+    segmentation_name: string
+    seq_format: string?
+    sequencing_experiment_bundle_type: string
+    split_intervals_extra_args: string?
+    ssm_call_bundle_type: string
+    tumour_sample_submitter_id: string
+    tumour_specimen_type: string
+    unfiltered_vcf_name: string
+    variants_for_contamination: 
+      secondaryFiles: 
+        - .tbi
+      type: File
+
 
 outputs:
   filtered_vcf:
@@ -269,41 +273,41 @@ steps:
       output_vcf: filtered_artifacts_vcf_name
     out: [ filtered_vcf ]
 
-  mutect2_ssm_payload_generate:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
-    in:
-      bundle_type: ssm_call_bundle_type
-      payload_schema_version: payload_schema_version
-      file_to_upload: filter_alignment_artifacts/filtered_vcf
-      input_metadata_aligned_seq:
-        source:
-          - get_payload_aligned_normal/payload
-          - get_payload_aligned_tumour/payload
-        linkMerge: merge_flattened
-    out:
-      [ payload ]
+#   mutect2_ssm_payload_generate:
+#     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
+#     in:
+#       bundle_type: ssm_call_bundle_type
+#       payload_schema_version: payload_schema_version
+#       file_to_upload: filter_alignment_artifacts/filtered_vcf
+#       input_metadata_aligned_seq:
+#         source:
+#           - get_payload_aligned_normal/payload
+#           - get_payload_aligned_tumour/payload
+#         linkMerge: merge_flattened
+#     out:
+#       [ payload ]
 
-  mutect2_ssm_payload_s3_submit:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-ceph-submission.0.1.4/tools/payload-ceph-submission/payload-ceph-submission.cwl
-    in:
-      metadata: get_payload_tumour_sequencing_experiment/payload
-      payload: mutect2_ssm_payload_generate/payload
-      credentials_file: credentials_file
-      endpoint_url: object_store_endpoint_url
-      bucket_name: bucket_name
-    out:
-      [ payload ]
+#   mutect2_ssm_payload_s3_submit:
+#     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-ceph-submission.0.1.4/tools/payload-ceph-submission/payload-ceph-submission.cwl
+#     in:
+#       metadata: get_payload_tumour_sequencing_experiment/payload
+#       payload: mutect2_ssm_payload_generate/payload
+#       credentials_file: credentials_file
+#       endpoint_url: object_store_endpoint_url
+#       bucket_name: bucket_name
+#     out:
+#       [ payload ]
 
-  mutect2_ssm_s3_upload:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl
-    in:
-      endpoint_url: object_store_endpoint_url
-      bucket_name: bucket_name
-      s3_credential_file: credentials_file
-      bundle_type: ssm_call_bundle_type
-      upload_file: filter_alignment_artifacts/filtered_vcf
-      payload_jsons:
-        source:
-         - mutect2_ssm_payload_s3_submit/payload
-        linkMerge: merge_flattened
-    out: []
+#   mutect2_ssm_s3_upload:
+#     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl
+#     in:
+#       endpoint_url: object_store_endpoint_url
+#       bucket_name: bucket_name
+#       s3_credential_file: credentials_file
+#       bundle_type: ssm_call_bundle_type
+#       upload_file: filter_alignment_artifacts/filtered_vcf
+#       payload_jsons:
+#         source:
+#          - mutect2_ssm_payload_s3_submit/payload
+#         linkMerge: merge_flattened
+#     out: []
