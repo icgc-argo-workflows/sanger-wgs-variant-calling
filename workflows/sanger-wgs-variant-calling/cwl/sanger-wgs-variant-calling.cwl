@@ -30,18 +30,12 @@ inputs:
   bucket_name: string
   credentials_file: File
   payload_schema_version: string
-  sanger_ssm_vcf_name_pattern: string
-  sanger_ssm_call_bundle_type: string
-  dna_alignment_bundle_type: string
-  sequencing_experiment_bundle_type: string
   seq_format: string?
   library_strategy: string
-  program: string
-  donor_submitter_id: string
-  normal_sample_submitter_id: string
-  tumour_sample_submitter_id: string
-  normal_specimen_type: string
-  tumour_specimen_type: string
+  program_id: string
+  submitter_donor_id: string
+  normal_submitter_sample_id: string
+  tumour_submitter_sample_id: string
 
 outputs:
   run_params:
@@ -53,61 +47,79 @@ outputs:
   global_time:
     type: File
     outputSource: sanger_calling/global_time
-  sanger_ssm:
+  sanger_snv:
     type: File
-    outputSource: extract_sanger_ssm/output_file
-  sanger_ssm_payload:
+    outputSource: extract_sanger_snv/output_file
+  sanger_snv_payload:
+    type: File[]
+    outputSource: sanger_snv_payload_gen_and_s3_submit_wf/payload
+  sanger_indel:
     type: File
-    outputSource: sanger_ssm_payload_s3_submit/payload
+    outputSource: extract_sanger_indel/output_file
+  sanger_indel_payload:
+    type: File[]
+    outputSource: sanger_indel_payload_gen_and_s3_submit_wf/payload
+  sanger_cnv:
+    type: File
+    outputSource: extract_sanger_cnv/output_file
+  sanger_cnv_payload:
+    type: File[]
+    outputSource: sanger_cnv_payload_gen_and_s3_submit_wf/payload
+  sanger_sv:
+    type: File
+    outputSource: extract_sanger_sv/output_file
+  sanger_sv_payload:
+    type: File[]
+    outputSource: sanger_sv_payload_gen_and_s3_submit_wf/payload
 
 steps:
   get_payload_aligned_normal:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
-      bundle_type: dna_alignment_bundle_type
+      bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
       library_strategy: library_strategy
-      program: program
-      donor_submitter_id: donor_submitter_id
-      sample_submitter_id: normal_sample_submitter_id
-      specimen_type: normal_specimen_type
+      program_id: program
+      submitter_donor_id: submitter_donor_id
+      submitter_sample_id: normal_submitter_sample_id
+      specimen_type: { default: 'normal' }
     out: [ payload ]
 
   get_payload_aligned_tumour:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
-      bundle_type: dna_alignment_bundle_type
+      bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
       library_strategy: library_strategy
-      program: program
-      donor_submitter_id: donor_submitter_id
-      sample_submitter_id: tumour_sample_submitter_id
-      specimen_type: tumour_specimen_type
+      program_id: program
+      submitter_donor_id: submitter_donor_id
+      submitter_sample_id: tumour_submitter_sample_id
+      specimen_type: { default: 'tumour' }
     out: [ payload ]
 
   get_payload_tumour_sequencing_experiment:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
-      bundle_type: sequencing_experiment_bundle_type
+      bundle_type: { default: 'sequencing_experiment' }
       library_strategy: library_strategy
-      program: program
-      donor_submitter_id: donor_submitter_id
-      sample_submitter_id: tumour_sample_submitter_id
-      specimen_type: tumour_specimen_type
+      program_id: program
+      submitter_donor_id: submitter_donor_id
+      submitter_sample_id: tumour_submitter_sample_id
+      specimen_type: { default: 'tumour' }
     out: [ payload ]
 
 
   download_normal:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.0/tools/s3-download/s3-download.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.1/tools/s3-download/s3-download.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -116,7 +128,7 @@ steps:
     out: [ download_file ]
 
   download_tumour:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.0/tools/s3-download/s3-download.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.1/tools/s3-download/s3-download.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -181,49 +193,182 @@ steps:
       - genotyped
       - pindel
 
-  extract_sanger_ssm:
+  extract_sanger_snv:
     run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.0/tools/extract-files-from-tarball/extract-files-from-tarball.cwl
     in:
       tarball: repack_sanger_results/caveman
-      pattern: sanger_ssm_vcf_name_pattern
+      pattern: { default: 'flagged.muts.vcf.gz'}
     out:
       [ output_file ]
 
-  sanger_ssm_payload_generate:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl
+  sanger_snv_payload_gen_and_s3_submit_wf:
+    run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/payload-gen-and-s3-submit-wf.0.2.0/workflows/payload-gen-and-s3-submit-wf/cwl/payload-gen-and-s3-submit-wf.cwl
     in:
-      bundle_type: sanger_ssm_call_bundle_type
+      bundle_type: { default: 'somatic_variant_call' }
       payload_schema_version: payload_schema_version
-      file_to_upload: extract_sanger_ssm/output_file
-      input_metadata_aligned_seq:
+      files_to_upload:
+        source:
+          - extract_sanger_snv/output_file
+        linkMerge: merge_flattened
+      user_submit_metadata: get_payload_tumour_sequencing_experiment/payload
+      analysis_input_payload:
         source:
           - get_payload_aligned_normal/payload
           - get_payload_aligned_tumour/payload
         linkMerge: merge_flattened
-    out:
-      [ payload ]
-
-  sanger_ssm_payload_s3_submit:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-ceph-submission.0.1.4/tools/payload-ceph-submission/payload-ceph-submission.cwl
-    in:
-      metadata: get_payload_tumour_sequencing_experiment/payload
-      payload: sanger_ssm_payload_generate/payload
+      wf_short_name: { default: 'sanger-wgs'}
+      wf_version: wf_version
+      data_type: { default: 'snv'}
       credentials_file: credentials_file
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
     out:
       [ payload ]
 
-  sanger_ssm_s3_upload:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl
+  sanger_snv_s3_upload:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.4/tools/s3-upload/s3-upload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
-      bundle_type: sanger_ssm_call_bundle_type
-      upload_file: extract_sanger_ssm/output_file
-      payload_jsons:
+      bundle_type: { default: 'somatic_variant_call' }
+      upload_file: extract_sanger_snv/output_file
+      payload_jsons: sanger_snv_payload_gen_and_s3_submit_wf/payload
+    out: []
+
+
+  extract_sanger_indel:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.0/tools/extract-files-from-tarball/extract-files-from-tarball.cwl
+    in:
+      tarball: repack_sanger_results/pindel
+      pattern: { default: 'flagged.vcf.gz'}
+    out:
+      [ output_file ]
+
+
+  sanger_indel_payload_gen_and_s3_submit_wf:
+    run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/payload-gen-and-s3-submit-wf.0.2.0/workflows/payload-gen-and-s3-submit-wf/cwl/payload-gen-and-s3-submit-wf.cwl
+    in:
+      bundle_type: { default: 'somatic_variant_call' }
+      payload_schema_version: payload_schema_version
+      files_to_upload:
         source:
-         - sanger_ssm_payload_s3_submit/payload
+          - extract_sanger_indel/output_file
         linkMerge: merge_flattened
+      user_submit_metadata: get_payload_tumour_sequencing_experiment/payload
+      analysis_input_payload:
+        source:
+          - get_payload_aligned_normal/payload
+          - get_payload_aligned_tumour/payload
+        linkMerge: merge_flattened
+      wf_short_name: { default: 'sanger-wgs'}
+      wf_version: wf_version
+      data_type: { default: 'indel'}
+      credentials_file: credentials_file
+      endpoint_url: object_store_endpoint_url
+      bucket_name: bucket_name
+    out:
+      [ payload ]
+
+
+  sanger_indel_s3_upload:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.4/tools/s3-upload/s3-upload.cwl
+    in:
+      endpoint_url: object_store_endpoint_url
+      bucket_name: bucket_name
+      s3_credential_file: credentials_file
+      bundle_type: { default: 'somatic_variant_call' }
+      upload_file: extract_sanger_indel/output_file
+      payload_jsons: sanger_indel_payload_gen_and_s3_submit_wf/payload
+    out: []
+
+  extract_sanger_cnv:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.0/tools/extract-files-from-tarball/extract-files-from-tarball.cwl
+    in:
+      tarball: repack_sanger_results/ascat
+      pattern: { default: 'copynumber.caveman.vcf.gz'}
+    out:
+      [ output_file ]
+
+
+  sanger_cnv_payload_gen_and_s3_submit_wf:
+    run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/payload-gen-and-s3-submit-wf.0.2.0/workflows/payload-gen-and-s3-submit-wf/cwl/payload-gen-and-s3-submit-wf.cwl
+    in:
+      bundle_type: { default: 'somatic_variant_call' }
+      payload_schema_version: payload_schema_version
+      files_to_upload:
+        source:
+          - extract_sanger_cnv/output_file
+        linkMerge: merge_flattened
+      user_submit_metadata: get_payload_tumour_sequencing_experiment/payload
+      analysis_input_payload:
+        source:
+          - get_payload_aligned_normal/payload
+          - get_payload_aligned_tumour/payload
+        linkMerge: merge_flattened
+      wf_short_name: { default: 'sanger-wgs'}
+      wf_version: wf_version
+      data_type: { default: 'cnv'}
+      credentials_file: credentials_file
+      endpoint_url: object_store_endpoint_url
+      bucket_name: bucket_name
+    out:
+      [ payload ]
+
+
+  sanger_cnv_s3_upload:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.4/tools/s3-upload/s3-upload.cwl
+    in:
+      endpoint_url: object_store_endpoint_url
+      bucket_name: bucket_name
+      s3_credential_file: credentials_file
+      bundle_type: { default: 'somatic_variant_call' }
+      upload_file: extract_sanger_cnv/output_file
+      payload_jsons: sanger_cnv_payload_gen_and_s3_submit_wf/payload
+    out: []
+
+
+  extract_sanger_sv:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.0/tools/extract-files-from-tarball/extract-files-from-tarball.cwl
+    in:
+      tarball: repack_sanger_results/brass
+      pattern: { default: 'annot.vcf.gz'}
+    out:
+      [ output_file ]
+
+
+  sanger_sv_payload_gen_and_s3_submit_wf:
+    run: https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/payload-gen-and-s3-submit-wf.0.2.0/workflows/payload-gen-and-s3-submit-wf/cwl/payload-gen-and-s3-submit-wf.cwl
+    in:
+      bundle_type: { default: 'somatic_variant_call' }
+      payload_schema_version: payload_schema_version
+      files_to_upload:
+        source:
+          - extract_sanger_sv/output_file
+        linkMerge: merge_flattened
+      user_submit_metadata: get_payload_tumour_sequencing_experiment/payload
+      analysis_input_payload:
+        source:
+          - get_payload_aligned_normal/payload
+          - get_payload_aligned_tumour/payload
+        linkMerge: merge_flattened
+      wf_short_name: { default: 'sanger-wgs'}
+      wf_version: wf_version
+      data_type: { default: 'sv'}
+      credentials_file: credentials_file
+      endpoint_url: object_store_endpoint_url
+      bucket_name: bucket_name
+    out:
+      [ payload ]
+
+
+  sanger_sv_s3_upload:
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.4/tools/s3-upload/s3-upload.cwl
+    in:
+      endpoint_url: object_store_endpoint_url
+      bucket_name: bucket_name
+      s3_credential_file: credentials_file
+      bundle_type: { default: 'somatic_variant_call' }
+      upload_file: extract_sanger_sv/output_file
+      payload_jsons: sanger_sv_payload_gen_and_s3_submit_wf/payload
     out: []
