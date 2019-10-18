@@ -47,30 +47,12 @@ outputs:
   global_time:
     type: File
     outputSource: sanger_calling/global_time
-  sanger_snv:
-    type: File
-    outputSource: extract_sanger_snv/output_file
-  sanger_snv_payload:
+  sanger_results_payload:
     type: File[]
-    outputSource: sanger_snv_payload_gen_and_s3_submit_wf/payload
-  sanger_indel:
-    type: File
-    outputSource: extract_sanger_indel/output_file
-  sanger_indel_payload:
+    outputSource: sanger_results_payload_gen_and_s3_submit_wf/payload
+  sanger_results:
     type: File[]
-    outputSource: sanger_indel_payload_gen_and_s3_submit_wf/payload
-  sanger_cnv:
-    type: File
-    outputSource: extract_sanger_cnv/output_file
-  sanger_cnv_payload:
-    type: File[]
-    outputSource: sanger_cnv_payload_gen_and_s3_submit_wf/payload
-  sanger_sv:
-    type: File
-    outputSource: extract_sanger_sv/output_file
-  sanger_sv_payload:
-    type: File[]
-    outputSource: sanger_sv_payload_gen_and_s3_submit_wf/payload
+    outputSource: sanger_results_payload_gen_and_s3_submit_wf/variant_call_renamed_result
 
 steps:
   get_payload_aligned_normal:
