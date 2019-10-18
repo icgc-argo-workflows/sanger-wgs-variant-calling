@@ -253,7 +253,7 @@ steps:
       [ payload, variant_call_renamed_result ]
 
   sanger_results_s3_upload:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.4/tools/s3-upload/s3-upload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.5/tools/s3-upload/s3-upload.cwl
     scatter: upload_file
     in:
       endpoint_url: object_store_endpoint_url
