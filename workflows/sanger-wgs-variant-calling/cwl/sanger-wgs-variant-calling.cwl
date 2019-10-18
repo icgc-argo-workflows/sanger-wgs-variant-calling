@@ -7,6 +7,8 @@ id: sanger-wgs-variant-calling
 requirements:
 - class: StepInputExpressionRequirement
 - class: MultipleInputFeatureRequirement
+- class: SubworkflowFeatureRequirement
+- class: MultipleInputFeatureRequirement
 
 inputs:
   reference: File
@@ -67,7 +69,7 @@ steps:
       program_id: program
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: normal_submitter_sample_id
-      specimen_type: { default: 'normal' }
+      tumour_normal_designation: { default: 'normal' }
     out: [ payload ]
 
   get_payload_aligned_tumour:
@@ -82,7 +84,7 @@ steps:
       program_id: program
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
-      specimen_type: { default: 'tumour' }
+      tumour_normal_designation: { default: 'tumour' }
     out: [ payload ]
 
   get_payload_tumour_sequencing_experiment:
@@ -96,7 +98,7 @@ steps:
       program_id: program
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
-      specimen_type: { default: 'tumour' }
+      tumour_normal_designation: { default: 'tumour' }
     out: [ payload ]
 
 
