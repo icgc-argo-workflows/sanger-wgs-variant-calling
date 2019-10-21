@@ -8,36 +8,38 @@ requirements:
 - class: StepInputExpressionRequirement
 - class: MultipleInputFeatureRequirement
 - class: SubworkflowFeatureRequirement
-- class: MultipleInputFeatureRequirement
+- class: ScatterFeatureRequirement
 
 inputs:
-  reference: File
   annot: File
-  snv_indel: File
-  cnv_sv: File
-  qcset: File
-  exclude: string
-  species: string?
   assembly: string?
-  skipqc: boolean?
-  pindelcpu: int?
-  cavereads: int?
-  purity: float?
-  ploidy: float?
-  num_threads: int?
-  ref_file:
-    type: File?
-    secondaryFiles: ['.fai?']
-  object_store_endpoint_url: string
   bucket_name: string
+  cavereads: int?
+  cnv_sv: File
   credentials_file: File
-  payload_schema_version: string
-  seq_format: string?
+  exclude: string
   library_strategy: string
-  program_id: string
-  submitter_donor_id: string
   normal_submitter_sample_id: string
+  num_threads: int?
+  object_store_endpoint_url: string
+  payload_schema_version: string
+  pindelcpu: int?
+  ploidy: float?
+  program_id: string
+  purity: float?
+  qcset: File
+  ref_file:
+    secondaryFiles:
+      - .fai?
+    type: File?
+  reference: File
+  seq_format: string?
+  skipqc: boolean?
+  snv_indel: File
+  species: string?
+  submitter_donor_id: string
   tumour_submitter_sample_id: string
+  wf_version: string
 
 outputs:
   run_params:
@@ -66,7 +68,7 @@ steps:
       bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
       library_strategy: library_strategy
-      program_id: program
+      program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: normal_submitter_sample_id
       tumour_normal_designation: { default: 'normal' }
@@ -81,7 +83,7 @@ steps:
       bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
       library_strategy: library_strategy
-      program_id: program
+      program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
       tumour_normal_designation: { default: 'tumour' }
@@ -95,7 +97,7 @@ steps:
       s3_credential_file: credentials_file
       bundle_type: { default: 'sequencing_experiment' }
       library_strategy: library_strategy
-      program_id: program
+      program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
       tumour_normal_designation: { default: 'tumour' }
