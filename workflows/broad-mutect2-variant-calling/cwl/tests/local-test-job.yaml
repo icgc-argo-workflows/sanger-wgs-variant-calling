@@ -2,30 +2,30 @@ bam_output_name: bamout.bam
 bucket_name: argo-test
 bwa_mem_index_image:
   class: File
-  location: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/GRCh38_hla_decoy_ebv.fa.img"
+  location: "reference/tiny-grch38-chr11-530001-537000.fa.img"
 credentials_file:
   class: File
   path: /Users/lxiang/.aws/credentials
-submitter_donor_id: HCC1147_chr21
 germline_resource:
   class: File
-  location: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/af-only-gnomad.hg38.vcf.gz"
+  location: "data/tiny-chr11-exac_common_3.hg38.vcf.gz"
 jvm_mem: 3000
 library_strategy: WGS
-normal_submitter_sample_id: HCC1147_BL
+normal_submitter_sample_id: HCC1143_BL-mini-N
 object_store_endpoint_url: "https://object.cancercollaboratory.org:9080"
 payload_schema_version: 0.1.0-rc.2
-program: CELL-LINE
+program: TEST-PRO
 ref_dict:
   class: File
-  location: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.dict"
+  location: "reference/tiny-grch38-chr11-530001-537000.dict"
 ref_fa:
   class: File
-  location: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa"
+  location: "reference/tiny-grch38-chr11-530001-537000.fa"
 scatter_count: 3
 seq_format: bam
-tumour_submitter_sample_id: HCC1147
+submitter_donor_id: HCC1143
+tumour_submitter_sample_id: HCC1143-mini-T
 variants_for_contamination:
   class: File
-  location: "https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/small_exac_common_3.hg38.vcf.gz"
+  location: "data/tiny-chr11-exac_common_3.hg38.vcf.gz"
 wf_version: 0.1.1

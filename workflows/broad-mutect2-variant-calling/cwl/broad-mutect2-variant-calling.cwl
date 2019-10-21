@@ -67,7 +67,7 @@ outputs:
 
 steps:
   get_payload_aligned_normal:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.2/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -82,7 +82,7 @@ steps:
     out: [ payload ]
 
   get_payload_aligned_tumour:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.2/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -97,7 +97,7 @@ steps:
     out: [ payload ]
 
   get_payload_tumour_sequencing_experiment:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.2/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -112,7 +112,7 @@ steps:
 
 
   download_normal:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.1/tools/s3-download/s3-download.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.2/tools/s3-download/s3-download.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -121,7 +121,7 @@ steps:
     out: [ download_file ]
 
   download_tumour:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.1/tools/s3-download/s3-download.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.2/tools/s3-download/s3-download.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -166,7 +166,7 @@ steps:
       seq_file: download_normal/download_file
       variants: variants_for_contamination
       intervals: split_intervals/interval_files
-      output_name: { default: 'normal_pileup_summary.txt' }
+      output_name: { default: 'normal_pileup_summary.tsv' }
     out: [ pileups_table ]
 
   get_tumour_pileup_summaries:
@@ -178,7 +178,7 @@ steps:
       seq_file: download_tumour/download_file
       variants: variants_for_contamination
       intervals: split_intervals/interval_files
-      output_name: { default: 'tumour_pileup_summary.txt' }
+      output_name: { default: 'tumour_pileup_summary.tsv' }
     out: [ pileups_table ]
 
   learn_read_orientation:
@@ -211,7 +211,7 @@ steps:
       jvm_mem: jvm_mem
       ref_dict: ref_dict
       input_pileup: get_normal_pileup_summaries/pileups_table
-      output_name: { default: 'normal_pileup_merged.txt' }
+      output_name: { default: 'normal_pileup_merged.tsv' }
     out: [ merged_pileup ]
 
   merge_tumour_pileups:
@@ -220,7 +220,7 @@ steps:
       jvm_mem: jvm_mem
       ref_dict: ref_dict
       input_pileup: get_tumour_pileup_summaries/pileups_table
-      output_name: { default: 'tumour_pileup_merged.txt' }
+      output_name: { default: 'tumour_pileup_merged.tsv' }
     out: [ merged_pileup ]
 
   calculate_contamination:
@@ -240,8 +240,8 @@ steps:
       unfiltered_vcf: merge_vcfs/output_vcf
       ref_fa: ref_fa
       output_vcf: { default: 'broad-mutect2.filtered.vcf.gz' }
-      contamination_table: calculate_contamination/contamination_table
-      segmentation_table: calculate_contamination/segmentation_table
+      contamination_table: calculate_contamination/contamination_output
+      segmentation_table: calculate_contamination/segmentation_output
       artifact_priors_tar_gz:
         source:
          - learn_read_orientation/artifact_prior_table
@@ -251,7 +251,7 @@ steps:
     out: [ filtered_vcf, filtering_stats ]
 
   filter_alignment_artifacts:
-    run: https://raw.githubusercontent.com/icgc-argo/gatk-tools/gatk-filter-alignment-artifacts.4.1.3.0-1.0/tools/gatk-filter-alignment-artifacts/gatk-filter-alignment-artifacts.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/gatk-tools/gatk-filter-alignment-artifacts.4.1.3.0-1.1/tools/gatk-filter-alignment-artifacts/gatk-filter-alignment-artifacts.cwl
     in:
       jvm_mem: jvm_mem
       bwa_mem_index_image: bwa_mem_index_image
