@@ -25,7 +25,7 @@ inputs:
     object_store_endpoint_url: string
     payload_schema_version: string
     pon: File?
-    program: string
+    program_id: string
     ref_dict: File
     ref_fa: 
       secondaryFiles: 
@@ -75,7 +75,7 @@ steps:
       bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
       library_strategy: library_strategy
-      program_id: program
+      program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: normal_submitter_sample_id
       tumour_normal_designation: { default: 'normal' }
@@ -90,7 +90,7 @@ steps:
       bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
       library_strategy: library_strategy
-      program_id: program
+      program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
       tumour_normal_designation: { default: 'tumour' }
@@ -104,7 +104,7 @@ steps:
       s3_credential_file: credentials_file
       bundle_type: { default: 'sequencing_experiment' }
       library_strategy: library_strategy
-      program_id: program
+      program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
       tumour_normal_designation: { default: 'tumour' }
@@ -240,8 +240,8 @@ steps:
       unfiltered_vcf: merge_vcfs/output_vcf
       ref_fa: ref_fa
       output_vcf: { default: 'broad-mutect2.filtered.vcf.gz' }
-      contamination_table: calculate_contamination/contamination_output
-      segmentation_table: calculate_contamination/segmentation_output
+      contamination_table: calculate_contamination/contamination_table
+      segmentation_table: calculate_contamination/segmentation_table
       artifact_priors_tar_gz:
         source:
          - learn_read_orientation/artifact_prior_table
