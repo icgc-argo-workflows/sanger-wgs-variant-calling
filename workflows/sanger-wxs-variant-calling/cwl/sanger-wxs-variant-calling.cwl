@@ -16,7 +16,6 @@ inputs:
   bucket_name: string
   credentials_file: File
   exclude: string
-  library_strategy: string
   normal_submitter_sample_id: string
   num_threads: int?
   object_store_endpoint_url: string
@@ -50,14 +49,14 @@ outputs:
 
 steps:
   get_payload_aligned_normal:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.2/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
-      library_strategy: library_strategy
+      library_strategy: { default: 'WXS' }
       program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: normal_submitter_sample_id
@@ -65,14 +64,14 @@ steps:
     out: [ payload ]
 
   get_payload_aligned_tumour:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.2/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: { default: 'dna_alignment' }
       seq_format: seq_format
-      library_strategy: library_strategy
+      library_strategy: { default: 'WXS' }
       program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
@@ -80,13 +79,13 @@ steps:
     out: [ payload ]
 
   get_payload_tumour_sequencing_experiment:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.1/tools/ceph-get-payload/ceph-get-payload.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.2/tools/ceph-get-payload/ceph-get-payload.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
       s3_credential_file: credentials_file
       bundle_type: { default: 'sequencing_experiment' }
-      library_strategy: library_strategy
+      library_strategy: { default: 'WXS' }
       program_id: program_id
       submitter_donor_id: submitter_donor_id
       submitter_sample_id: tumour_submitter_sample_id
@@ -95,7 +94,7 @@ steps:
 
 
   download_normal:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.1/tools/s3-download/s3-download.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.2/tools/s3-download/s3-download.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -104,7 +103,7 @@ steps:
     out: [ download_file ]
 
   download_tumour:
-    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.1/tools/s3-download/s3-download.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.2/tools/s3-download/s3-download.cwl
     in:
       endpoint_url: object_store_endpoint_url
       bucket_name: bucket_name
@@ -149,9 +148,10 @@ steps:
       - timings
 
   repack_sanger_results:
-    run: https://raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.1.0/tools/repack-sanger-results/repack-sanger-results.cwl
+    run: https://raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.1.1/tools/repack-sanger-results/repack-sanger-results.cwl
     in:
       input: sanger_calling/result_archive
+      library_strategy: { default: 'WXS' }
     out:
       - caveman
       - pindel
