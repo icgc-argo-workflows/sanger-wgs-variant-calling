@@ -2,7 +2,7 @@
 
 workflow:
   name:  sanger-wgs-variant-calling
-  version: "0.1.0"
+  version: "0.1.2"
 
   input:
     song_collab_url:
@@ -78,12 +78,15 @@ workflow:
     payload_schema_version:
       type: string
       default: "0.1.0-rc.1"
-    sanger_ssm_vcf_name_pattern:
+    sanger_snv_vcf_name_pattern:
       type: string
-      default: "flagged.muts"
-    sanger_ssm_call_bundle_type:
+      default: "flagged.muts.vcf.gz"
+    sanger_indel_vcf_name_pattern:
       type: string
-      default: "sanger_ssm_call"
+      default: "flagged.vcf.gz"
+    somatic_variant_call_bundle_type:
+      type: string
+      default: "somatic_variant_call"
     dna_alignment_bundle_type:
       type: string
       default: "dna_alignment"
@@ -96,32 +99,32 @@ workflow:
     library_strategy:
       type: string
       default: "WGS"
-    program:
+    program_id:
       type: string
       is_required: true
-    donor_submitter_id:
+    submitter_donor_id:
       type: string
       is_required: true
-    normal_sample_submitter_id:
+    normal_submitter_sample_id:
       type: string
       is_required: true
-    tumour_sample_submitter_id:
+    tumour_submitter_sample_id:
       type: string
       is_required: true
-    normal_specimen_type:
+    normal_designation:
       type: string
-      is_required: true
-    tumour_specimen_type:
+      default: "Normal"
+    tumour_designation:
       type: string
-      is_required: true
+      default: "Tumour"
     ceph_get_payload.tool_url:
       type: string
       is_file: true
-      default: "[ceph-get-payload.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.0/tools/ceph-get-payload/ceph-get-payload.cwl"
+      default: "[ceph-get-payload.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/ceph-get-payload.0.1.2/tools/ceph-get-payload/ceph-get-payload.cwl"
     s3_download.tool_url:
       type: string
       is_file: true
-      default: "[s3-download.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.0/tools/s3-download/s3-download.cwl"
+      default: "[s3-download.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-download.0.1.2/tools/s3-download/s3-download.cwl"
     generate_bas.tool_url:
       type: string
       is_file: true
@@ -138,19 +141,20 @@ workflow:
       type: string
       is_file: true
       default: "[extract-files-from-tarball.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.0/tools/extract-files-from-tarball/extract-files-from-tarball.cwl"
-    payload_generation.tool_url:
+    payload_gen_and_s3_submit_wf.tool_url:
       type: string
       is_file: true
-      default: "[payload-generation.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-generation.0.1.3/tools/payload-generation/payload-generation.cwl"
-    payload_ceph_submission.tool_url:
+      default: "[payload-gen-and-s3-submit-wf.cwl]https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/payload-gen-and-s3-submit-wf.0.2.0/workflows/payload-gen-and-s3-submit-wf/cwl/payload-gen-and-s3-submit-wf.cwl"
+    s3_upload_wf.tool_url:
       type: string
       is_file: true
-      default: "[payload-ceph-submission.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-ceph-submission.0.1.4/tools/payload-ceph-submission/payload-ceph-submission.cwl"
-    s3_upload.tool_url:
+      default: "[s3-upload-wf.cwl]https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/s3-upload-wf.0.1.0/workflows/s3-upload-wf/cwl/s3-upload-wf.cwl"
+    wf_short_name:
       type: string
-      is_file: true
-      default: "[s3-upload.cwl]https://raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/s3-upload.0.1.3/tools/s3-upload/s3-upload.cwl"
-
+      default: "sanger-wgs"
+    wf_version:
+      type: string
+      default: "0.1.2"
 
   tasks:
     get_payload_aligned_normal:
@@ -162,10 +166,10 @@ workflow:
         bundle_type: dna_alignment_bundle_type
         seq_format: seq_format
         library_strategy: library_strategy
-        program: program
-        donor_submitter_id: donor_submitter_id
-        sample_submitter_id: normal_sample_submitter_id
-        specimen_type: normal_specimen_type
+        program_id: program_id
+        submitter_donor_id: submitter_donor_id
+        submitter_sample_id: normal_submitter_sample_id
+        tumour_normal_designation: normal_designation
         tool_url: ceph_get_payload.tool_url
 
     get_payload_aligned_tumour:
@@ -177,10 +181,10 @@ workflow:
         bundle_type: dna_alignment_bundle_type
         seq_format: seq_format
         library_strategy: library_strategy
-        program: program
-        donor_submitter_id: donor_submitter_id
-        sample_submitter_id: tumour_sample_submitter_id
-        specimen_type: tumour_specimen_type
+        program_id: program_id
+        submitter_donor_id: submitter_donor_id
+        submitter_sample_id: tumour_submitter_sample_id
+        tumour_normal_designation: tumour_designation
         tool_url: ceph_get_payload.tool_url
 
     get_payload_tumour_sequencing_experiment:
@@ -191,10 +195,10 @@ workflow:
         s3_credential_file: credentials_file
         bundle_type: sequencing_experiment_bundle_type
         library_strategy: library_strategy
-        program: program
-        donor_submitter_id: donor_submitter_id
-        sample_submitter_id: tumour_sample_submitter_id
-        specimen_type: tumour_specimen_type
+        program_id: program_id
+        submitter_donor_id: submitter_donor_id
+        submitter_sample_id: tumour_submitter_sample_id
+        tumour_normal_designation: tumour_designation
         tool_url: ceph_get_payload.tool_url
 
     download_normal:
@@ -263,46 +267,65 @@ workflow:
         library_strategy: library_strategy
         tool_url: repack_sanger_results.tool_url
 
-    extract_sanger_ssm:
+    extract_sanger_snv:
       tool: extract_files_from_tarball
       input:
         tarball: caveman@repack_sanger_results
-        pattern: sanger_ssm_vcf_name_pattern
+        pattern: sanger_snv_vcf_name_pattern
         tool_url: extract_files_from_tarball.tool_url
 
-    sanger_ssm_payload_generate:
-      tool: payload_generation
+    extract_sanger_indel:
+      tool: extract_files_from_tarball
       input:
-        bundle_type: sanger_ssm_call_bundle_type
+        tarball: pindel@repack_sanger_results
+        pattern: sanger_indel_vcf_name_pattern
+        tool_url: extract_files_from_tarball.tool_url
+
+    extract_sanger_sv:
+      tool: extract_files_from_tarball
+      input:
+        tarball: brass@repack_sanger_results
+        pattern: sanger_sv_vcf_name_pattern
+        tool_url: extract_files_from_tarball.tool_url
+
+    extract_sanger_cnv:
+      tool: extract_files_from_tarball
+      input:
+        tarball: ascat@repack_sanger_results
+        pattern: sanger_cnv_vcf_name_pattern
+        tool_url: extract_files_from_tarball.tool_url
+
+    sanger_results_payload_gen_and_s3_submit_wf:
+      tool: payload_gen_and_s3_submit_wf
+      input:
+        bundle_type: somatic_variant_call_bundle_type
         payload_schema_version: payload_schema_version
-        file_to_upload: output_file@extract_sanger_ssm
-        input_metadata_aligned_seq:
+        file_to_upload:
+          - output_file@extract_sanger_snv
+          - output_file@extract_sanger_indel
+          - output_file@extract_sanger_sv
+          - output_file@extract_sanger_cnv
+        user_submit_metadata: payload@get_payload_tumour_sequencing_experiment
+        analysis_input_payload:
           - payload@get_payload_aligned_normal
           - payload@get_payload_aligned_tumour
-        tool_url: payload_generation.tool_url
-
-    sanger_ssm_payload_s3_submit:
-      tool: payload_ceph_submission
-      input:
-        metadata: payload@get_payload_tumour_sequencing_experiment
-        payload: payload@sanger_ssm_payload_generate
+        wf_short_name: wf_short_name
+        wf_version: wf_version
         credentials_file: credentials_file
         endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
-        tool_url: payload_ceph_submission.tool_url
+        tool_url: payload_generation.tool_url
 
-    sanger_ssm_s3_upload:
-      tool: s3_upload
+    sanger_results_s3_upload:
+      tool: s3_upload_wf
       input:
         endpoint_url: object_store_endpoint_url
         bucket_name: bucket_name
         s3_credential_file: credentials_file
-        bundle_type: sanger_ssm_call_bundle_type
-        upload_file: output_file@extract_sanger_ssm
-        payload_jsons:
-          - payload@sanger_ssm_payload_s3_submit
-        tool_url: s3_upload.tool_url
-
+        bundle_type: somatic_variant_call_bundle_type
+        upload_file: variant_call_renamed_result@sanger_results_payload_gen_and_s3_submit_wf
+        payload_jsons: payload@sanger_results_payload_gen_and_s3_submit_wf
+        tool_url: s3_upload_wf.tool_url
 
 
 # A workflow is made up with one or more tools
@@ -325,13 +348,13 @@ tools:
         type: string
       library_strategy:
         type: string
-      program:
+      program_id:
         type: string
-      donor_submitter_id:
+      submitter_donor_id:
         type: string
-      sample_submitter_id:
+      submitter_sample_id:
         type: string
-      specimen_type:
+      tumour_normal_designation:
         type: string
       tool_url:
         type: string
@@ -453,36 +476,26 @@ tools:
         type: string
         is_file: true
 
-
-
-  payload_generation:
+  payload_gen_and_s3_submit_wf:
     command: cwltool_launcher.py
     input:
       bundle_type:
         type: string
-      file_to_upload:
-        type: string
-        is_file: true
-      payload_schema_version:
-        type: string
-      input_metadata_aligned_seq:
+      files_to_upload:
         type: array
         items:
           type: string
           is_file: true
-      tool_url:
+      payload_schema_version:
+        type: string
+      user_submit_metadata:
         type: string
         is_file: true
-
-  payload_ceph_submission:
-    command: cwltool_launcher.py
-    input:
-      metadata:
-        type: string
-        is_file: true
-      payload:
-        type: string
-        is_file: true
+      analysis_input_payload:
+        type: array
+        items:
+          type: string
+          is_file: true
       credentials_file:
         type: string
         is_file: true
@@ -490,12 +503,19 @@ tools:
         type: string
       bucket_name:
         type: string
-      tool_url:
-        type: string
-        is_file: true
+    output:
+      payload:
+        type: array
+        items:
+          type: string
+          is_file: true
+      variant_call_renamed_result:
+        type: array
+        items:
+          type: string
+          is_file: true
 
-
-  s3_upload:
+  s3_upload_wf:
     command: cwltool_launcher.py
     input:
       endpoint_url:
@@ -511,10 +531,10 @@ tools:
           is_file: true
       s3_credential_file:
         type: File
-      upload_file:
-        type: File
-      tool_url:
-        type: string
-        is_file: true
+      upload_files:
+        type: array
+        items:
+          type: string
+          is_file: true
 
 
