@@ -272,7 +272,7 @@ workflow:
         bucket_name: bucket_name
         tool_url: payload_generation.tool_url
 
-    sanger_results_s3_upload:
+    sanger_results_s3_upload_wf:
       tool: s3_upload_wf
       input:
         endpoint_url: object_store_endpoint_url
