@@ -84,6 +84,12 @@ workflow:
     sanger_indel_vcf_name_pattern:
       type: string
       default: "flagged.vcf.gz"
+    sanger_sv_vcf_name_pattern:
+      type: string
+      default: "annot.vcf.gz"
+    sanger_cnv_vcf_name_pattern:
+      type: string
+      default: "copynumber.caveman.vcf.gz"
     somatic_variant_call_bundle_type:
       type: string
       default: "somatic_variant_call"
