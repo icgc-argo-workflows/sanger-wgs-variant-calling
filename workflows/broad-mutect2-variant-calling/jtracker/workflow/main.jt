@@ -321,8 +321,8 @@ workflow:
         unfiltered_vcf: output_vcf@merge_vcfs
         ref_fa: ref_fa
         output_vcf: m2_filter_vcf_name
-        contamination_table: contamination_table@calculate_contamination
-        segmentation_table: segmentation_table@calculate_contamination
+        contamination_table: contamination_table@calculate_contamination_wf
+        segmentation_table: segmentation_table@calculate_contamination_wf
         artifact_priors_tar_gz:
           - artifact_prior_table@learn_read_orientation
         mutect_stats: merged_stats@merge_stats
