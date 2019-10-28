@@ -363,8 +363,8 @@ workflow:
         bucket_name: bucket_name
         s3_credential_file: credentials_file
         bundle_type: somatic_variant_call_bundle_type
-        upload_file: variant_call_renamed_result@sanger_results_payload_gen_and_s3_submit_wf
-        payload_jsons: payload@sanger_results_payload_gen_and_s3_submit_wf
+        upload_file: variant_call_renamed_result@mutect2_ssm_payload_gen_and_s3_submit_wf
+        payload_jsons: payload@mutect2_ssm_payload_gen_and_s3_submit_wf
         tool_url: s3_upload_wf.tool_url
 
 
