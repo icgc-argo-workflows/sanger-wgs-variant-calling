@@ -56,7 +56,7 @@ workflow:
       default: "0.1.0-rc.2"
     scatter_count:
       type: integer
-      default: "3"
+      default: "10"
     split_intervals_extra_args:
       type: string
     somatic_variant_call_bundle_type:
@@ -267,7 +267,7 @@ workflow:
         ref_dict: ref_dict
         ref_fa: ref_fa
         scatter_count: scatter_count
-        split_intervals_extra_args: string?
+        split_intervals_extra_args: split_intervals_extra_args
         tumour_seq_file: download_file@download_tumour
         variants_for_contamination: variants_for_contamination
         variants_for_contamination_tbi: variants_for_contamination_tbi
@@ -478,6 +478,51 @@ tools:
         type: string
         is_file: true
       tumour_segmentation_table:
+        type: string
+        is_file: true
+
+  m2_caller:
+    command: cwltool_launcher.py
+    input:
+      jvm_mem:
+        type: int
+      ref_fa:
+        type: string
+        is_file: true
+      tumour_reads:
+        type: string
+        is_file: true
+      normal_reads:
+        type: string
+        is_file: true
+      output_vcf:
+        type: string
+      germline_resource:
+        type: string
+        is_file: true
+      pon:
+        type: string
+        is_file: true
+      intervals:
+        type: string
+        is_file: true
+      bam_output_name:
+        type: string
+      f1r2_tar_gz:
+        type: string
+      m2_extra_args:  # placeholder for now
+        type: string
+    output:
+      unfiltered_vcf:
+        type: string
+        is_file: true
+      mutect_stats:
+        type: string
+        is_file: true
+      bam_output:
+        type: string
+        is_file: true
+      f1r2_counts:
         type: string
         is_file: true
 
