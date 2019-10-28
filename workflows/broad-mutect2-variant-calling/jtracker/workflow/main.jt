@@ -56,7 +56,7 @@ workflow:
       default: "0.1.0-rc.2"
     scatter_count:
       type: integer
-      default: "10"
+      default: 10
     split_intervals_extra_args:
       type: string
     somatic_variant_call_bundle_type:
@@ -123,10 +123,10 @@ workflow:
       is_required: true
     normal_designation:
       type: string
-      default: "Normal"
+      default: "normal"
     tumour_designation:
       type: string
-      default: "Tumour"
+      default: "tumour"
     ceph_get_payload.tool_url:
       type: string
       is_file: true
