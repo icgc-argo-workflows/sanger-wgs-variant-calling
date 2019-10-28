@@ -258,7 +258,7 @@ workflow:
       input:
         bundle_type: somatic_variant_call_bundle_type
         payload_schema_version: payload_schema_version
-        file_to_upload:
+        files_to_upload:
           - output_file@extract_sanger_snv
           - output_file@extract_sanger_indel
         user_submit_metadata: payload@get_payload_tumour_sequencing_experiment
@@ -279,7 +279,7 @@ workflow:
         bucket_name: bucket_name
         s3_credential_file: credentials_file
         bundle_type: somatic_variant_call_bundle_type
-        upload_file: variant_call_renamed_result@sanger_results_payload_gen_and_s3_submit_wf
+        upload_files: variant_call_renamed_result@sanger_results_payload_gen_and_s3_submit_wf
         payload_jsons: payload@sanger_results_payload_gen_and_s3_submit_wf
         tool_url: s3_upload_wf.tool_url
 
