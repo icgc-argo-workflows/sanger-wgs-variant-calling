@@ -100,7 +100,7 @@ workflow:
     bwa_mem_index_image:
       type: string
       is_file: true
-      default: "[GRCh38_hla_decoy_ebv.img][GRCh38_hla_decoy_ebv.fa.fai]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.img"
+      default: "[GRCh38_hla_decoy_ebv.img]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.img"
     variants_for_contamination:
       type: string
       is_file: true
@@ -108,7 +108,7 @@ workflow:
     variants_for_contamination_tbi:
       type: string
       is_file: true
-      default: "[af-only-gnomad.hg38.vcf.gz]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/af-only-gnomad.hg38.vcf.gz.tbi"
+      default: "[af-only-gnomad.hg38.vcf.gz.tbi]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/gatk-resources/af-only-gnomad.hg38.vcf.gz.tbi"
     program_id:
       type: string
       is_required: true
