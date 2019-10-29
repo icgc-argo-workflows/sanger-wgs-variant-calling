@@ -100,7 +100,7 @@ workflow:
     bwa_mem_index_image:
       type: string
       is_file: true
-      default: "[GRCh38_hla_decoy_ebv.img]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.img"
+      default: "[GRCh38_hla_decoy_ebv.fa.img]https://object.cancercollaboratory.org:9080/swift/v1/genomics-public-data/reference-genome/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa.img"
     variants_for_contamination:
       type: string
       is_file: true
