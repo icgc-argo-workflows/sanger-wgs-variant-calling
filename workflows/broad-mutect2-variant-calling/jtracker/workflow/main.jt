@@ -147,10 +147,10 @@ workflow:
       type: string
       is_file: true
       default: "[gatk-learn-read-orientation-model.cwl]https://raw.githubusercontent.com/icgc-argo/gatk-tools/gatk-learn-read-orientation-model.4.1.3.0-1.0/tools/gatk-learn-read-orientation-model/gatk-learn-read-orientation-model.cwl"
-    m2_caller.tool_url:
+    m2_scatter_caller.tool_url:
       type: string
       is_file: true
-      default: "[gatk-mutect2.cwl]https://raw.githubusercontent.com/icgc-argo/gatk-tools/gatk-mutect2.4.1.3.0-1.3/tools/gatk-mutect2/gatk-mutect2.cwl"
+      default: "[mutect2-scatter.cwl]https://raw.githubusercontent.com/icgc-argo/variant-calling-wfs/mutect2-scatter.0.1.0/workflows/mutect2-scatter/cwl/mutect2-scatter.cwl"
     merge_vcfs.tool_url:
       type: string
       is_file: true
@@ -174,7 +174,7 @@ workflow:
     s3_upload_wf.tool_url:
       type: string
       is_file: true
-      default: "[s3-upload-wf.cwl]https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/s3-upload-wf.0.1.0/workflows/s3-upload-wf/cwl/s3-upload-wf.cwl"
+      default: "[s3-upload-wf.cwl]https://raw.githubusercontent.com/icgc-argo/dna-seq-processing-wfs/s3-upload-wf.0.1.1/workflows/s3-upload-wf/cwl/s3-upload-wf.cwl"
     wf_short_name:
       type: string
       default: "broad-mutect2"
@@ -275,7 +275,7 @@ workflow:
 
 
     mutect2_calling:
-      tool: m2_caller
+      tool: m2_scatter_caller
       input:
         jvm_mem: jvm_mem
         ref_fa: ref_fa
@@ -285,16 +285,16 @@ workflow:
         bam_output_name: bam_output_name
         germline_resource: germline_resource
         pon: pon
-        intervals: interval_files@split_intervals
+        interval_files: interval_files@split_intervals
         f1r2_tar_gz: f1r2_tar_gz_name
         m2_extra_args: m2_extra_args
-        tool_url: m2_caller.tool_url
+        tool_url: m2_scatter_caller.tool_url
 
     learn_read_orientation:
       tool: learn_read_orientation
       input:
         jvm_mem: jvm_mem
-        input_f1r2_tar_gz: f1r2_counts@mutect2_calling
+        input_f1r2_tar_gz: f1r2_counts_files@mutect2_calling
         output_name: artifact_priors_name
         tool_url: learn_read_orientation.tool_url
 
@@ -302,7 +302,7 @@ workflow:
       tool: merge_vcfs
       input:
         jvm_mem: jvm_mem
-        input_vcf: unfiltered_vcf@mutect2_calling
+        input_vcf: unfiltered_vcfs@mutect2_calling
         output_name: merged_vcf_output_name
         tool_url: merge_vcfs.tool_url
 
@@ -310,7 +310,7 @@ workflow:
       tool: merge_stats
       input:
         jvm_mem: jvm_mem
-        input_stats: mutect_stats@mutect2_calling
+        input_stats: mutect_stats_files@mutect2_calling
         output_name: merged_stats_output_name
         tool_url: merge_stats.tool_url
 
@@ -481,7 +481,7 @@ tools:
         type: string
         is_file: true
 
-  m2_caller:
+  m2_scatter_caller:
     command: cwltool_launcher.py
     input:
       jvm_mem:
@@ -503,9 +503,11 @@ tools:
       pon:
         type: string
         is_file: true
-      intervals:
-        type: string
-        is_file: true
+      interval_files:
+        type: array
+        items:
+          type: string
+          is_file: true
       bam_output_name:
         type: string
       f1r2_tar_gz:
@@ -514,17 +516,25 @@ tools:
         type: string
     output:
       unfiltered_vcf:
-        type: string
-        is_file: true
+        type: array
+        items:
+          type: string
+          is_file: true
       mutect_stats:
-        type: string
-        is_file: true
+        type: array
+        items:
+          type: string
+          is_file: true
       bam_output:
-        type: string
-        is_file: true
+        type: array
+        items:
+          type: string
+          is_file: true
       f1r2_counts:
-        type: string
-        is_file: true
+        type: array
+        items:
+          type: string
+          is_file: true
 
 
   learn_read_orientation:
