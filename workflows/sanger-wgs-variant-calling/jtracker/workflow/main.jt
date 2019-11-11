@@ -333,6 +333,26 @@ workflow:
         payload_jsons: payload@sanger_results_payload_gen_and_s3_submit_wf
         tool_url: s3_upload_wf.tool_url
 
+    
+    cleanup_outdir_files:
+        tool: cleanup_directory
+        depends_on:
+           - completed@get_payload_aligned_normal
+           - completed@get_payload_aligned_tumour
+           - completed@get_payload_tumour_sequencing_experiment
+           - completed@download_normal
+           - completed@download_tumour
+           - completed@generate_bas_normal
+           - completed@generate_bas_tumour
+           - completed@sanger_calling
+           - completed@repack_sanger_results
+           - completed@extract_sanger_snv
+           - completed@extract_sanger_indel
+           - completed@extract_sanger_sv
+           - completed@extract_sanger_cnv
+           - completed@sanger_results_payload_gen_and_s3_submit_wf
+           - completed@sanger_results_s3_upload_wf
+
 
 # A workflow is made up with one or more tools
 # Each tool can have its own docker imagine if desirable
@@ -544,3 +564,12 @@ tools:
           is_file: true
 
 
+  cleanup_directory:
+    command: |
+      bash -c '
+        set -euxo pipefail
+        for dir in `ls -d ../task.*`
+        do
+          rm -rf ${dir}/outdir/*
+        done
+        '
