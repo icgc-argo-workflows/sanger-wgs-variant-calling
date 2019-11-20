@@ -570,6 +570,6 @@ tools:
         set -euxo pipefail
         for dir in `ls -d ../task.*`
         do
-          rm -rf ${dir}/outdir/*
+          rm -rf $dir/outdir/*
         done
         '
