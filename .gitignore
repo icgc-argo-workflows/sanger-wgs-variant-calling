@@ -64,3 +64,15 @@ docs/_build
 *.log
 .vscode
 .python-version
+.nextflow*
+work
+outdir
+.nextflow*
+.idea*
+results
+my-results
+out
+reports
+remote_reports
+params.json
+params.*.json
