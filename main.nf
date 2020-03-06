@@ -177,25 +177,7 @@ include { extractFilesFromTarball as extractVar; extractFilesFromTarball as extr
 include { payloadGenSangerVariant as pGenVar } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenVariantCall_params)
 include { payloadGenSangerQC as pGenQC } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenQcMetrics_params)
 include { songScoreUpload as upVar; songScoreUpload as upQC} from './song-score-utils/song-score-upload' params(upload_params)
-
-
-process cleanup {
-    container "ubuntu:18.04"
-
-    input:
-        path files_to_delete
-        val aligned_seq_analysis_id
-        val qc_metrics_analysis_id
-
-    script:
-        """
-        IFS=" "
-        read -a files <<< "${files_to_delete}"
-        for f in "\${files[@]}"
-            do rm -fr \$(dirname \$(readlink -f \$f))/*  # delete all files and subdirs but not hidden ones
-        done
-        """
-}
+include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/b45093d3ecc3cb98407549158c5315991802526b/process/cleanup-workdir'
 
 
 workflow SangerWgs {
@@ -264,21 +246,19 @@ workflow SangerWgs {
 
         if (params.cleanup) {
             cleanup(
-                dnld.out.files.concat(toLaneBam.out, bwaMemAligner.out, merSorMkdup.out,
-                    alignedSeqQC.out, oxog.out, rgQC.out).collect(),
-                upAln.out.analysis_id, upQc.out.analysis_id)
+                dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out,
+                    repack.out, extractVar.out, extractQC.out).collect(),
+                upVar.out.analysis_id, upQC.out.analysis_id)
         }
 
-    emit:
-        analysis_id = upAln.out.analysis_id
-        alignment_files = pGenDnaAln.out.alignment_files
 }
 
 
 workflow {
     SangerWgs(
         params.study_id,
-        params.analysis_id,
+        params.tumour_aln_analysis_id,
+        params.normal_aln_analysis_id,
         params.ref_genome_fa
     )
 }
