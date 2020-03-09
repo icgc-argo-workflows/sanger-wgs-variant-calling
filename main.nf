@@ -106,16 +106,10 @@ params.study_id = ""
 params.tumour_aln_analysis_id = ""
 params.normal_aln_analysis_id = ""
 params.ref_genome_fa = ""
-params.sanger_ref_genome_tar = ""
-params.sanger_vagrent_annot = ""
-params.sanger_ref_cnv_sv_tar = ""
-params.sanger_ref_snv_indel_tar = ""
-params.sanger_qcset_tar = ""
 params.cleanup = true
 
 params.cpus = 1
 params.mem = 1
-params.pindelcpu = 1
 
 download_params = [
     'song_container_version': '4.0.0',
@@ -131,13 +125,22 @@ generateBas_params = [
 ]
 
 sangerWgsVariantCaller_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     'species': 'human',
     'assembly': 'GRCh38',
     'cavereads': 800000,
     'exclude': 'chrUn%,HLA%,%_alt,%_random,chrM,chrEBV',
     'ploidy': 2.0,
     'purity': 1.0,
+    'skipqc': false,
     'seq_format': 'cram',
+    'pindelcpu': 4,
+    'ref_genome_tar': '',
+    'vagrent_annot': '',
+    'ref_snv_indel_tar': '',
+    'ref_cnv_sv_tar': '',
+    'qcset_tar': '',
     *:(params.sangerWgsVariantCaller ?: [:])
 ]
 
@@ -180,6 +183,15 @@ include { songScoreUpload as upVar; songScoreUpload as upQC} from './song-score-
 include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/b45093d3ecc3cb98407549158c5315991802526b/process/cleanup-workdir'
 
 
+def getSecondaryFiles(main_file, exts){  //this is kind of like CWL's secondary files
+  def all_files = []
+  for (ext in exts) {
+    all_files.add(main_file + ext)
+  }
+  return all_files
+}
+
+
 workflow SangerWgs {
     take:
         study_id
@@ -195,30 +207,23 @@ workflow SangerWgs {
         dnldN(study_id, normal_aln_analysis_id)
 
         // generate Bas for tumour
-        basT(dnld.out.files.collect(), file(ref_genome_fa))
+        basT(
+            dnldT.out.files.toSortedList().first(), dnldT.out.files.toSortedList().last(),
+            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: true).collect())
 
         // generate Bas for normal
-        basN(dnld.out.files.collect(), file(ref_genome_fa))
+        basN(
+            dnldN.out.files.toSortedList().first(), dnldN.out.files.toSortedList().last(),
+            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: true).collect())
+
 
         sangerWgs(
-            params.mem,
-            file(params.sanger_ref_genome_tar),
-            file(params.sanger_vagrent_annot),
-            file(params.sanger_ref_snv_indel_tar),
-            file(params.sanger_ref_cnv_sv_tar),
-            file(params.sanger_qcset_tar),
-            dnldT.out.files.toSortedList().first().concat(basT.out.bas).collect(),  // aln seq + bas
-            dnldT.out.files.toSortedList().last(),  // aln seq idx
-            dnldN.out.files.toSortedList().first().concat(basN.out.bas).collect(),  // aln seq + bas
-            dnldN.out.files.toSortedList().last(),  // aln seq idx
-            params.exclude,
-            params.species,
-            params.assembly,
-            params.skipqc,
-            params.pindelcpu,
-            params.cavereads,
-            params.purity,
-            params.ploidy
+            dnldT.out.files.toSortedList().first(),  // aln seq
+            basT.out.bas,  // bas
+            dnldT.out.files.toSortedList().last(),  // idx
+            dnldN.out.files.toSortedList().first(),  // aln seq
+            basN.out.bas,  // bas
+            dnldN.out.files.toSortedList().last(),  // idx
         )
 
         // repack results
