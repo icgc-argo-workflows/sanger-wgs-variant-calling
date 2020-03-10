@@ -176,7 +176,7 @@ include { songScoreDownload as dnldT; songScoreDownload as dnldN } from './song-
 include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.1.1/tools/generate-bas/generate-bas' params(generateBas_params)
 include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-4/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
 include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.1.2/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
-include { extractFilesFromTarball as extractVar; extractFilesFromTarball as extractQC } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.1/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
+include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv; extractFilesFromTarball as extractQC } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.1/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
 include { payloadGenSangerVariant as pGenVar } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenVariantCall_params)
 include { payloadGenSangerQC as pGenQC } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenQcMetrics_params)
 include { songScoreUpload as upVar; songScoreUpload as upQC} from './song-score-utils/song-score-upload' params(upload_params)
@@ -230,16 +230,21 @@ workflow SangerWgs {
         repack(sangerWgs.out.result_archive, 'WGS')
 
         // extract variant calls
-        result_patterns = Channel.from(
-            'flagged.muts.vcf.gz', 'flagged.vcf.gz', 'copynumber.caveman.vcf.gz', 'annot.vcf.gz')
-        extractVar(repack.out.collect(), result_patterns.flatten())
+        extractVarSnv(repack.out.caveman, 'flagged.muts.vcf.gz')
+        extractVarIndel(repack.out.pindel, 'flagged.vcf.gz')
+        extractVarCnv(repack.out.ascat, 'copynumber.caveman.vcf.gz')
+        extractVarSv(repack.out.brass, 'annot.vcf.gz')
 
-        payloadGenSangerVariant(dnldT.out.song_analysis, extractVar.out)
+        payloadGenSangerVariant(
+            dnldT.out.song_analysis, dnldN.out.song_analysis,
+            extractVarSnv.out[0].concat(
+                extractVarIndel.out[0], extractVarCnv.out[0], extractVarSv.out[0]).flatten()
+        )
 
-        // it's not that easy, needs more work here
-        upVar(study_id, payloadGenSangerVariant.out.payload, extractVar.out)
+        // upload variant results in paralllel
+        upVar(study_id, payloadGenSangerVariant.out[0].flatten())
 
-        // extract QC
+        /*  // more to flesh out
         qc_result_patterns = Channel.from(
             '???', '???')
         extractQC(repack.out.collect(), qc_result_patterns.flatten())
@@ -247,13 +252,14 @@ workflow SangerWgs {
         payloadGenSangerQC(dnldT.out.song_analysis, extractQC.out)
 
         upQC(study_id, payloadGenSangerQC.out.payload, extractQC.out)
+        */
 
 
         if (params.cleanup) {
             cleanup(
                 dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out,
-                    repack.out, extractVar.out, extractQC.out).collect(),
-                upVar.out.analysis_id, upQC.out.analysis_id)
+                    repack.out, extractVarSnv.out, extractVarIndel.out, extractVarCnv.out, extractVarSv.out).collect(),
+                upVar.out.analysis_id.collect())
         }
 
 }
