@@ -38,7 +38,7 @@ score_params = [
 
 // import modules
 // TODO: change import for score_download after it's updated on the other git repo
-include songGetAnalysis as songGet from '../modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/c3584220006df06f118077fc3487a19327fab15b/process/song_get_analysis.nf' params(song_params)
+include songGetAnalysis as songGet from '../modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/321f6114278ac2d6cef7838c0aa0fd9de489fb42/process/song_get_analysis.nf' params(song_params)
 include scoreDownload as scoreDn from '../modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/c3584220006df06f118077fc3487a19327fab15b/process/score_download' params(score_params)
 
 workflow songScoreDownload {

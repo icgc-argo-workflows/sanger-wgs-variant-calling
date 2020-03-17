@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.preview.dsl=2
-
+name='sanger-wgs-variant-calling'
+short_name='sanger-wgs'
+version='0.1.0-dev'
 
 /*
 ========================================================================================
@@ -18,11 +20,11 @@ Required Parameters (no default):
 --tumour_aln_analysis_id                Tumour WGS sequencing_alignment SONG analysis ID
 --normal_aln_analysis_id                Normal WGS sequencing_alignment SONG analysis ID
 --ref_genome_fa                         Reference genome '.fa' file, secondary file ('.fa.fai') is expected to be under the same folder
---sanger_ref_genome_tar                 Tarball containing reference genome files from the same genome build
---sanger_vagrent_annot                  Tarball containing VAGrENT annotation reference
---sanger_ref_cnv_sv_tar                 Tarball containing CNV/SV reference
---sanger_ref_snv_indel_tar              Tarball containing SNV/Indel reference
---sanger_qcset_tar                      Tarball containing QC Genotype reference
+--ref_genome_tar                        Tarball containing reference genome files from the same genome build
+--vagrent_annot                         Tarball containing VAGrENT annotation reference
+--ref_cnv_sv_tar                        Tarball containing CNV/SV reference
+--ref_snv_indel_tar                     Tarball containing SNV/Indel reference
+--qcset_tar                             Tarball containing QC Genotype reference
 --song_url                              SONG server URL
 --score_url                             SCORE server URL
 --api_token                             SONG/SCORE API Token
@@ -63,7 +65,6 @@ sangerWgsVariantCaller Parameters (object):
     exclude                             reference contigs to exclude, default: 'chrUn%,HLA%,%_alt,%_random,chrM,chrEBV'
     ploidy                              ploidy estimate of the genome, default: 2.0
     purity                              purity estimate of the genome, default: 1.0
-    seq_format                          input aligned sequence format: default: cram
 }
 
 repackSangerResults Parameters (object):
@@ -134,8 +135,7 @@ sangerWgsVariantCaller_params = [
     'ploidy': 2.0,
     'purity': 1.0,
     'skipqc': false,
-    'seq_format': 'cram',
-    'pindelcpu': 4,
+    'pindelcpu': 8,
     'ref_genome_tar': '',
     'vagrent_annot': '',
     'ref_snv_indel_tar': '',
@@ -173,13 +173,13 @@ upload_params = [
 
 // Include all modules and pass params
 include { songScoreDownload as dnldT; songScoreDownload as dnldN } from './song-score-utils/song-score-download' params(download_params)
-include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.1.1/tools/generate-bas/generate-bas' params(generateBas_params)
+include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.2.0.0/tools/generate-bas/generate-bas' params(generateBas_params)
 include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-4/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
-include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.1.2/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
-include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv; extractFilesFromTarball as extractQC } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.1.1/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
-include { payloadGenSangerVariant as pGenVar } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenVariantCall_params)
+include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
+include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv; extractFilesFromTarball as extractQC } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
+include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv  } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.1.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling.nf" params(payloadGenVariantCall_params)
 include { payloadGenSangerQC as pGenQC } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenQcMetrics_params)
-include { songScoreUpload as upVar; songScoreUpload as upQC} from './song-score-utils/song-score-upload' params(upload_params)
+include { songScoreUpload as upVarSnv; songScoreUpload as upVarIndel; songScoreUpload as upVarCnv; songScoreUpload as upVarSv; songScoreUpload as upQC} from './song-score-utils/song-score-upload' params(upload_params)
 include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/b45093d3ecc3cb98407549158c5315991802526b/process/cleanup-workdir'
 
 
@@ -191,7 +191,6 @@ def getSecondaryFiles(main_file, exts){  //this is kind of like CWL's secondary 
   return all_files
 }
 
-
 workflow SangerWgs {
     take:
         study_id
@@ -201,50 +200,59 @@ workflow SangerWgs {
 
     main:
         // download tumour aligned seq and metadata from song/score (analysis type: sequencing_alignment)
-        dnldT(study_id, normal_aln_analysis_id)
+        dnldT(study_id, tumour_aln_analysis_id)
 
         // download normal aligned seq and metadata from song/score (analysis type: sequencing_alignment)
         dnldN(study_id, normal_aln_analysis_id)
 
         // generate Bas for tumour
         basT(
-            dnldT.out.files.toSortedList().first(), dnldT.out.files.toSortedList().last(),
-            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: true).collect())
+            dnldT.out.files.flatten().first(), dnldT.out.files.flatten().last(),
+            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: false).collect())
 
         // generate Bas for normal
         basN(
-            dnldN.out.files.toSortedList().first(), dnldN.out.files.toSortedList().last(),
-            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: true).collect())
+            dnldN.out.files.flatten().first(), dnldN.out.files.flatten().last(),
+            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: false).collect())
 
 
         sangerWgs(
-            dnldT.out.files.toSortedList().first(),  // aln seq
-            basT.out.bas,  // bas
-            dnldT.out.files.toSortedList().last(),  // idx
-            dnldN.out.files.toSortedList().first(),  // aln seq
-            basN.out.bas,  // bas
-            dnldN.out.files.toSortedList().last(),  // idx
+            file(params.sangerWgsVariantCaller.ref_genome_tar),
+            file(params.sangerWgsVariantCaller.vagrent_annot),
+            file(params.sangerWgsVariantCaller.ref_snv_indel_tar),
+            file(params.sangerWgsVariantCaller.ref_cnv_sv_tar),
+            file(params.sangerWgsVariantCaller.qcset_tar),
+            dnldT.out.files.flatten().first(),  // aln seq
+            dnldT.out.files.flatten().last(),
+            basT.out.bas_file,  // bas
+            dnldN.out.files.flatten().first(),  // aln seq
+            dnldN.out.files.flatten().last(),  // idx
+            basN.out.bas_file  // bas
         )
 
         // repack results
         repack(sangerWgs.out.result_archive, 'WGS')
 
         // extract variant calls
-        extractVarSnv(repack.out.caveman, 'flagged.muts.vcf.gz')
-        extractVarIndel(repack.out.pindel, 'flagged.vcf.gz')
-        extractVarCnv(repack.out.ascat, 'copynumber.caveman.vcf.gz')
-        extractVarSv(repack.out.brass, 'annot.vcf.gz')
+        extractVarSnv(repack.out.caveman, 'flagged.muts')
+        extractVarIndel(repack.out.pindel, 'flagged')
+        extractVarCnv(repack.out.ascat, 'copynumber.caveman')
+        extractVarSv(repack.out.brass, 'annot')
 
-        payloadGenSangerVariant(
-            dnldT.out.song_analysis, dnldN.out.song_analysis,
-            extractVarSnv.out[0].concat(
-                extractVarIndel.out[0], extractVarCnv.out[0], extractVarSv.out[0]).flatten()
-        )
+        pGenVarSnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSnv.out.output_file.concat(extractVarSnv.out.output_file_index).collect(), name, short_name, version)
+        pGenVarIndel(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarIndel.out.output_file.concat(extractVarIndel.out.output_file_index).collect(), name, short_name, version)
+        pGenVarCnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarCnv.out.output_file.concat(extractVarCnv.out.output_file_index).collect(), name, short_name, version)
+        pGenVarSv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSv.out.output_file.concat(extractVarSv.out.output_file_index).collect(), name, short_name, version)
 
-        // upload variant results in paralllel
-        upVar(study_id, payloadGenSangerVariant.out[0].flatten())
+        // upload variant results
+        upVarSnv(study_id, pGenVarSnv.out.payload, extractVarSnv.out.output_file.concat(extractVarSnv.out.output_file_index).collect())
+        upVarIndel(study_id, pGenVarIndel.out.payload, extractVarIndel.out.output_file.concat(extractVarIndel.out.output_file_index).collect())
+        upVarCnv(study_id, pGenVarCnv.out.payload, extractVarCnv.out.output_file.concat(extractVarCnv.out.output_file_index).collect())
+        upVarSv(study_id, pGenVarSv.out.payload, extractVarSv.out.output_file.concat(extractVarSv.out.output_file_index).collect())
 
-        /*  // more to flesh out
+
+/*
+        // more to flesh out
         qc_result_patterns = Channel.from(
             '???', '???')
         extractQC(repack.out.collect(), qc_result_patterns.flatten())
