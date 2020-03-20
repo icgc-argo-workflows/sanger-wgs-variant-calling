@@ -27,7 +27,7 @@ params.tarball = ""
 params.pattern = ""
 
 process extractFilesFromTarball {
-  container 'cfmanteiga/alpine-bash-curl-jq'
+  container 'ubuntu:18.04'
 
   input:
     path tarball
@@ -36,6 +36,7 @@ process extractFilesFromTarball {
   output:
     path "*${pattern}{.bam,.cram,.vcf.gz}", emit: output_file
     path "*${pattern}{.bam.bai,.cram.crai,.vcf.gz.tbi}", emit: output_file_index
+    tuple path("*${pattern}{.bam,.cram,.vcf.gz}"), path("*${pattern}{.bam.bai,.cram.crai,.vcf.gz.tbi}"), emit: extracted_files
 
   script:
     """

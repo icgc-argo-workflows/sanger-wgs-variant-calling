@@ -22,6 +22,7 @@
  */
 
 nextflow.preview.dsl = 2
+version = '0.1.0.0'
 
 params.normal_analysis = ""
 params.tumour_analysis = ""
@@ -29,12 +30,12 @@ params.files_to_upload = []
 params.wf_name = ""
 params.wf_short_name = ""
 params.wf_version = ""
-params.container_version = '0.1.0.0'
+params.container_version = ''
 params.cpus = 1
 params.mem = 1  // GB
 
 process payloadGenVariantCalling {
-  container "quay.io/icgc-argo/payload-gen-variant-calling:payload-gen-variant-calling.${params.container_version}"
+  container "quay.io/icgc-argo/payload-gen-variant-calling:payload-gen-variant-calling.${params.container_version ?: version}"
   cpus params.cpus
   memory "${params.mem} GB"
 
@@ -48,8 +49,7 @@ process payloadGenVariantCalling {
 
   output:
     path "*.variant_calling.payload.json", emit: payload
-    path files_to_upload, emit: files_to_upload
-    tuple path("*.variant_calling.payload.json"), path(files_to_upload), emit: data
+    path "out/*{.vcf.gz,.vcf.gz.tbi}", emit: files_to_upload
 
   script:
     args_tumour_analysis = !tumour_analysis.empty() ? "-t ${tumour_analysis}" : ""
