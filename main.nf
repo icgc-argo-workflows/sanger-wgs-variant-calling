@@ -240,7 +240,7 @@ workflow SangerWgs {
         extractVarSv(repack.out.brass, 'annot')
 
         pGenVarSnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSnv.out.extracted_files, name, short_name, version)
-        pGenVarIndel(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarIndel.extracted_files, name, short_name, version)
+        pGenVarIndel(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarIndel.out.extracted_files, name, short_name, version)
         pGenVarCnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarCnv.out.extracted_files, name, short_name, version)
         pGenVarSv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSv.out.extracted_files, name, short_name, version)
 
@@ -267,7 +267,7 @@ workflow SangerWgs {
             cleanup(
                 dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out,
                     repack.out, extractVarSnv.out, extractVarIndel.out, extractVarCnv.out, extractVarSv.out).collect(),
-                upVarSv.out.analysis_id.concat(upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id).collect()
+                upVarSv.out.analysis_id.concat(upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id).collect())
         }
 
 }
