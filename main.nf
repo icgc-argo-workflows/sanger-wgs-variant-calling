@@ -178,7 +178,7 @@ include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubuserconten
 include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv; extractFilesFromTarball as extractQC } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
 include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv  } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.1.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling.nf" params(payloadGenVariantCall_params)
-include { payloadGenSangerQC as pGenQC } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenQcMetrics_params)
+//include { payloadGenSangerQC as pGenQC } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-dna-seq-qc.0.2.0.0/tools/payload-gen-dna-seq-qc/payload-gen-dna-seq-qc.nf" params(payloadGenQcMetrics_params)
 include { songScoreUpload as upVarSnv; songScoreUpload as upVarIndel; songScoreUpload as upVarCnv; songScoreUpload as upVarSv; songScoreUpload as upQC} from './song-score-utils/song-score-upload' params(upload_params)
 include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/b45093d3ecc3cb98407549158c5315991802526b/process/cleanup-workdir'
 
@@ -239,16 +239,16 @@ workflow SangerWgs {
         extractVarCnv(repack.out.ascat, 'copynumber.caveman')
         extractVarSv(repack.out.brass, 'annot')
 
-        pGenVarSnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSnv.out.output_file.concat(extractVarSnv.out.output_file_index).collect(), name, short_name, version)
-        pGenVarIndel(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarIndel.out.output_file.concat(extractVarIndel.out.output_file_index).collect(), name, short_name, version)
-        pGenVarCnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarCnv.out.output_file.concat(extractVarCnv.out.output_file_index).collect(), name, short_name, version)
-        pGenVarSv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSv.out.output_file.concat(extractVarSv.out.output_file_index).collect(), name, short_name, version)
+        pGenVarSnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSnv.out.extracted_files, name, short_name, version)
+        pGenVarIndel(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarIndel.extracted_files, name, short_name, version)
+        pGenVarCnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarCnv.out.extracted_files, name, short_name, version)
+        pGenVarSv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSv.out.extracted_files, name, short_name, version)
 
         // upload variant results
-        upVarSnv(study_id, pGenVarSnv.out.payload, extractVarSnv.out.output_file.concat(extractVarSnv.out.output_file_index).collect())
-        upVarIndel(study_id, pGenVarIndel.out.payload, extractVarIndel.out.output_file.concat(extractVarIndel.out.output_file_index).collect())
-        upVarCnv(study_id, pGenVarCnv.out.payload, extractVarCnv.out.output_file.concat(extractVarCnv.out.output_file_index).collect())
-        upVarSv(study_id, pGenVarSv.out.payload, extractVarSv.out.output_file.concat(extractVarSv.out.output_file_index).collect())
+        upVarSnv(study_id, pGenVarSnv.out.payload, extractVarSnv.out.extracted_files)
+        upVarIndel(study_id, pGenVarIndel.out.payload, extractVarIndel.out.extracted_files)
+        upVarCnv(study_id, pGenVarCnv.out.payload, extractVarCnv.out.extracted_files)
+        upVarSv(study_id, pGenVarSv.out.payload, extractVarSv.out.extracted_files)
 
 
 /*
@@ -267,7 +267,7 @@ workflow SangerWgs {
             cleanup(
                 dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out,
                     repack.out, extractVarSnv.out, extractVarIndel.out, extractVarCnv.out, extractVarSv.out).collect(),
-                upVar.out.analysis_id.collect())
+                upVarSv.out.analysis_id.concat(upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id).collect()
         }
 
 }
