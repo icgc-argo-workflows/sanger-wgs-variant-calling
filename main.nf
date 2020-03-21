@@ -245,10 +245,10 @@ workflow SangerWgs {
         pGenVarSv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSv.out.extracted_files, name, short_name, version)
 
         // upload variant results
-        upVarSnv(study_id, pGenVarSnv.out.payload, extractVarSnv.out.extracted_files)
-        upVarIndel(study_id, pGenVarIndel.out.payload, extractVarIndel.out.extracted_files)
-        upVarCnv(study_id, pGenVarCnv.out.payload, extractVarCnv.out.extracted_files)
-        upVarSv(study_id, pGenVarSv.out.payload, extractVarSv.out.extracted_files)
+        upVarSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
+        upVarIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
+        upVarCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
+        upVarSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
 
 
 /*
