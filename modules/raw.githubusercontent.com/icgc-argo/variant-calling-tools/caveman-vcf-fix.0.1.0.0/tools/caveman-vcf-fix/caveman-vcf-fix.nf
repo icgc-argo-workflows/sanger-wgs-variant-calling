@@ -22,46 +22,28 @@
  */
 
 nextflow.preview.dsl=2
-version = '0.2.0.0'
+version = '0.1.0.0'
 
-params.reference = "NO_FILE"
-params.seq = ""
-params.seq_idx = ""
+params.input_tar = ""
 params.container_version = ""
 params.cpus = 8
 params.mem = 2  // GB
 
 
-def getBasSecondaryFiles(main_file){  //this is kind of like CWL's secondary files
-  def all_files = []
-  all_files.add(main_file + '.fai')
-  return all_files
-}
-
-process generateBas {
-  container "quay.io/icgc-argo/generate-bas:generate-bas.${params.container_version ?: version}"
+process cavemanVcfFix {
+  container "quay.io/icgc-argo/caveman-vcf-fix:caveman-vcf-fix.${params.container_version ?: version}"
 
   cpus params.cpus
   memory "${params.mem} GB"
 
-  tag "${seq.size()}"
-
   input:
-    path seq
-    path seq_idx
-    path reference
-    path reference_fai
+    path input_tar
 
   output:
-    path "${seq.name}.bas", emit: bas_file
+    path "out/*.tgz", emit: fixed_tar
 
   script:
-    arg_ref = reference.name != 'NO_FILE' ? "-r ${reference}" : ''
     """
-    /opt/wtsi-cgp/bin/bam_stats \
-      -i ${seq} \
-      ${arg_ref} \
-      --num_threads ${task.cpus} \
-      -o ${seq.name}.bas
+    caveman-vcf-fix.py -i ${input_tar}
     """
 }
