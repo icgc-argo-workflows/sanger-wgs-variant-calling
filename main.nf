@@ -163,7 +163,7 @@ payloadGenVariantCall_params = [
 ]
 
 payloadGenQcMetrics_params = [
-    *:(params.payloadGenVariantCall ?: [:])
+    *:(params.payloadGenQcMetrics ?: [:])
 ]
 
 upload_params = [
