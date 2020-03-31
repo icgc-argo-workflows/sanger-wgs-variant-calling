@@ -264,7 +264,7 @@ workflow SangerWgs {
                  repack.out.normal_contamination, repack.out.tumour_contamination, repack.out.genotyped).collect(),
                  name, short_name, version)
 
-        upQc(study_id, pGenQC.out.payload, pGenQc.out.qc_files)
+        upQc(study_id, pGenQc.out.payload, pGenQc.out.qc_files)
 
 
         if (params.cleanup) {
