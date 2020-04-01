@@ -271,7 +271,7 @@ workflow SangerWgs {
             cleanup(
                 dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out,
                     repack.out).collect(),
-                upVarSv.out.analysis_id.concat(upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id).collect())
+                upVarSv.out.analysis_id.concat(upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id, upQc.out.analysis_id).collect())
         }
 
 }
