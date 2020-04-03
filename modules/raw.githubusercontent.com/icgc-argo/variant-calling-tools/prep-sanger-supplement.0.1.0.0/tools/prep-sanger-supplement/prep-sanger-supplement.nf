@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 /*
- * Copyright (c) 2019, Ontario Institute for Cancer Research (OICR).
+ * Copyright (c) 2019-2020, Ontario Institute for Cancer Research (OICR).
  *                                                                                                               
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,44 +18,33 @@
  */
 
 /*
- * Authors:
- *   Junjun Zhang <junjun.zhang@oicr.on.ca>
+ * author Junjun Zhang <junjun.zhang@oicr.on.ca>
+ *        Linda Xiang <linda.xiang@oicr.on.ca>
  */
 
-nextflow.preview.dsl=2
-version = '0.2.0.0'
+nextflow.preview.dsl = 2
+version = '0.1.0.0'
 
-params.seq_experiment_analysis = ""
-params.qc_files = []
-params.wf_name = ""
-params.wf_version = ""
+params.result_tars = ""
 params.container_version = ""
 params.cpus = 1
-params.mem = 1  // GB
+params.mem = 2  // in GB
 
 
-process payloadGenDnaSeqQc {
-  container "quay.io/icgc-argo/payload-gen-dna-seq-qc:payload-gen-dna-seq-qc.${params.container_version ?: version}"
+process prepSangerSupplement {
+  container "quay.io/icgc-argo/prep-sanger-supplement:prep-sanger-supplement.${params.container_version ?: version}"
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:
-    path seq_experiment_analysis
-    path qc_files
-    val wf_name
-    val wf_version
+    path result_tars
 
   output:
-    path "*.dna_seq_qc.payload.json", emit: payload
-    path "out/*.tgz", emit: qc_files
+    path "*.supplement.tgz", emit: supplement_tar
 
   script:
     """
-    payload-gen-dna-seq-qc.py \
-      -a ${seq_experiment_analysis} \
-      -f ${qc_files} \
-      -w ${wf_name} \
-      -r ${workflow.runName} \
-      -v ${wf_version}
+    prep-sanger-supplement.py \
+      -r ${result_tars}
     """
 }

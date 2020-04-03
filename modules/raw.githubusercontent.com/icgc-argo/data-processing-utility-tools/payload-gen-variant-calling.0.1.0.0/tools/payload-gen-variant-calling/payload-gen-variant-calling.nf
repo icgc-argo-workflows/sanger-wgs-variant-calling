@@ -49,7 +49,7 @@ process payloadGenVariantCalling {
 
   output:
     path "*.variant_calling.payload.json", emit: payload
-    path "out/*{.vcf.gz,.vcf.gz.tbi}", emit: files_to_upload
+    path "out/*{.tgz,.vcf.gz,.vcf.gz.tbi}", emit: files_to_upload
 
   script:
     args_tumour_analysis = !tumour_analysis.empty() ? "-t ${tumour_analysis}" : ""
