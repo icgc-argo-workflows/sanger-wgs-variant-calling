@@ -189,9 +189,9 @@ include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubuserconten
 include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
 include cavemanVcfFix as cavemanFix from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/caveman-vcf-fix.0.1.0.0/tools/caveman-vcf-fix/caveman-vcf-fix' params(cavemanVcfFix_params)
 include prepSangerSupplement as prepSupp from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-supplement.0.1.0.0/tools/prep-sanger-supplement/prep-sanger-supplement' params(prepSangerSupplement_params)
+include prepSangerQc as prepQc from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-qc.0.1.0.0/tools/prep-sanger-qc/prep-sanger-qc' params(prepSangerQc_params)
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
-include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.1.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
-include { payloadGenSangerQc as pGenQc } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-sanger-qc.0.1.1.0/tools/payload-gen-sanger-qc/payload-gen-sanger-qc' params(payloadGenQcMetrics_params)
+include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.1.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
 include { songScoreUpload as upVarSnv; songScoreUpload as upVarIndel; songScoreUpload as upVarCnv; songScoreUpload as upVarSv; songScoreUpload as upQc; songScoreUpload as upVarSupp} from './song-score-utils/song-score-upload' params(upload_params)
 include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/b45093d3ecc3cb98407549158c5315991802526b/process/cleanup-workdir'
 
@@ -276,12 +276,14 @@ workflow SangerWgs {
         upVarSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
         upVarSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
 
-        // upload sanger qc metrics
-        pGenQc(dnldN.out.song_analysis, dnldT.out.song_analysis, basN.out.bas_file.concat(basT.out.bas_file,
-                 repack.out.normal_contamination, repack.out.tumour_contamination, repack.out.genotyped, repack.out.ascat).collect(),
+        // prepare and upload sanger qc metrics
+        prepQc(basN.out.bas_file.concat(basT.out.bas_file, repack.out.normal_contamination, repack.out.tumour_contamination,
+                 repack.out.genotyped, repack.out.ascat).collect())
+        pGenQc(dnldN.out.song_analysis, dnldT.out.song_analysis,
+                 prepQc.out.qc_metrics_tar,
                  name, short_name, version)
 
-        upQc(study_id, pGenQc.out.payload, pGenQc.out.qc_files)
+        upQc(study_id, pGenQc.out.payload, pGenQc.out.files_to_upload)
 
 
         if (params.cleanup) {

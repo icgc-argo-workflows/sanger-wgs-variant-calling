@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 /*
- * Copyright (c) 2019, Ontario Institute for Cancer Research (OICR).
+ * Copyright (c) 2019-2020, Ontario Institute for Cancer Research (OICR).
  *                                                                                                               
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,51 +18,33 @@
  */
 
 /*
- * Authors:
- *   Junjun Zhang <junjun.zhang@oicr.on.ca>
- *   Linda Xiang <linda.xiang@oicr.on.ca>
+ * author Junjun Zhang <junjun.zhang@oicr.on.ca>
+ *        Linda Xiang <linda.xiang@oicr.on.ca>
  */
 
-nextflow.preview.dsl=2
-version = '0.1.1.0'
+nextflow.preview.dsl = 2
+version = '0.1.0.0'
 
-params.normal_analysis = ""
-params.tumour_analysis = ""
-params.qc_files = []
-params.wf_name = ""
-params.wf_short_name = ""
-params.wf_version = ""
+params.qc_files = ""
 params.container_version = ""
 params.cpus = 1
-params.mem = 1  // GB
+params.mem = 2  // in GB
 
 
-process payloadGenSangerQc {
-  container "quay.io/icgc-argo/payload-gen-sanger-qc:payload-gen-sanger-qc.${params.container_version ?: version}"
+process prepSangerQc {
+  container "quay.io/icgc-argo/prep-sanger-qc:prep-sanger-qc.${params.container_version ?: version}"
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:
-    path normal_analysis
-    path tumour_analysis
     path qc_files
-    val wf_name
-    val wf_short_name
-    val wf_version
 
   output:
-    path "*.sanger_qc.payload.json", emit: payload
-    path "out/*.tgz", emit: qc_files
+    path "*_metrics.tgz", emit: qc_metrics_tar
 
   script:
     """
-    payload-gen-sanger-qc.py \
-      -n ${normal_analysis} \
-      -t ${tumour_analysis} \
-      -f ${qc_files} \
-      -w ${wf_name} \
-      -s ${wf_short_name} \
-      -r ${workflow.runName} \
-      -v ${wf_version}
+    prep-sanger-qc.py \
+      -r ${qc_files}
     """
 }
