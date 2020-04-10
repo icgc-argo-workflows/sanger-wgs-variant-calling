@@ -158,7 +158,7 @@ prepSangerSupplement_params = [
 prepSangerQc_params = [
     'cpus': params.cpus,
     'mem': params.mem,
-    *:(params.prepSangerQc_params ?: [:])
+    *:(params.prepSangerQc ?: [:])
 ]
 
 cavemanVcfFix_params = [
