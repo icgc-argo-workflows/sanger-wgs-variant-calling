@@ -155,6 +155,12 @@ prepSangerSupplement_params = [
     *:(params.prepSangerSupplement ?: [:])
 ]
 
+prepSangerQc_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
+    *:(params.prepSangerQc_params ?: [:])
+]
+
 cavemanVcfFix_params = [
     *:(params.cavemanVcfFix ?: [:])
 ]
@@ -166,10 +172,6 @@ extractSangerCall_params = [
 
 payloadGenVariantCall_params = [
     *:(params.payloadGenVariantCall ?: [:])
-]
-
-payloadGenQcMetrics_params = [
-    *:(params.payloadGenQcMetrics ?: [:])
 ]
 
 upload_params = [
