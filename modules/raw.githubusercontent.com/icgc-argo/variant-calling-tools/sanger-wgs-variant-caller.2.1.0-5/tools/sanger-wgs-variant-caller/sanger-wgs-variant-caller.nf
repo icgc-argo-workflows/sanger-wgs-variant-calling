@@ -23,7 +23,7 @@
  */
 
 nextflow.preview.dsl=2
-version = '2.1.0-4'
+version = '2.1.0-5'
 
 params.ref_genome_tar = ""
 params.vagrent_annot = ""
@@ -38,13 +38,14 @@ params.exclude = "chrUn%,HLA%,%_alt,%_random,chrM,chrEBV"
 params.species = "human"
 params.assembly = "GRCh38"
 params.skipqc = false
+params.skipannot = false
 params.pindelcpu = 8
 params.cavereads = 350000
 params.purity = 1.0
 params.ploidy = 2.0
 params.container_version = ""
 params.cpus = 24
-params.mem = 64  // GB
+params.mem = 128  // GB
 
 
 def getSangerWgsSecondaryFiles(main_file){  //this is kind of like CWL's secondary files
@@ -84,6 +85,7 @@ process sangerWgsVariantCaller {
 
   script:
     arg_skipqc = params.skipqc ? "-skipqc" : ""
+    arg_skipannot = params.skipannot ? "-skipannot" : ""
     """
     /opt/wtsi-cgp/bin/ds-cgpwgs.pl \
       -cores ${task.cpus} \
@@ -100,6 +102,7 @@ process sangerWgsVariantCaller {
       -species ${params.species} \
       -assembly ${params.assembly} \
       ${arg_skipqc} \
+      ${arg_skipannot} \
       -pindelcpu ${params.pindelcpu} \
       -cavereads ${params.cavereads} \
       -pu ${params.purity} \
