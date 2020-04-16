@@ -48,7 +48,7 @@ process payloadGenVariantCalling {
     val wf_version
 
   output:
-    path "*.variant_calling.payload.json", emit: payload
+    path "*.payload.json", emit: payload
     path "out/*{.tgz,.vcf.gz,.vcf.gz.tbi}", emit: files_to_upload
 
   script:

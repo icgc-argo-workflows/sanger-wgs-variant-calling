@@ -40,7 +40,7 @@ process prepSangerSupplement {
     path result_tars
 
   output:
-    path "*.supplement.tgz", emit: supplement_tar
+    path "*.*-supplement.tgz", emit: supplement_tar
 
   script:
     """
