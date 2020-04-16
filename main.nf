@@ -259,7 +259,8 @@ workflow SangerWgs {
         extractVarSv(repack.out.brass, 'annot')
 
         // prepare variant call supplements
-        prepSupp(cavemanFix.out.fixed_tar.concat(repack.out.pindel, repack.out.ascat, repack.out.brass).collect())
+        prepSupp(cavemanFix.out.fixed_tar.concat(
+                    repack.out.pindel, repack.out.ascat, repack.out.brass, sangerWgs.out.timings).collect())
 
         pGenVarSnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSnv.out.extracted_files, name, short_name, version)
         pGenVarIndel(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarIndel.out.extracted_files, name, short_name, version)
@@ -268,7 +269,7 @@ workflow SangerWgs {
 
         pGenVarSupp(
             dnldN.out.song_analysis, dnldT.out.song_analysis,
-            prepSupp.out.supplement_tar,
+            prepSupp.out.supplement_tar.collect(),
             name, short_name, version
         )
 
@@ -291,9 +292,12 @@ workflow SangerWgs {
 
         if (params.cleanup) {
             cleanup(
-                dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out,
-                    repack.out).collect(),
-                upVarSv.out.analysis_id.concat(upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id, upVarSupp.out.analysis_id, upQc.out.analysis_id).collect())
+                dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out, repack.out,
+                    prepQc.out, prepSupp.out, pGenVarSnv.out, pGenVarIndel.out,
+                    pGenVarCnv.out, pGenVarSv.out, pGenQc.out, pGenVarSupp.out).collect(),
+                upVarSv.out.analysis_id.concat(
+                    upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id,
+                    upVarSupp.out.analysis_id, upQc.out.analysis_id).collect())
         }
 
 }
