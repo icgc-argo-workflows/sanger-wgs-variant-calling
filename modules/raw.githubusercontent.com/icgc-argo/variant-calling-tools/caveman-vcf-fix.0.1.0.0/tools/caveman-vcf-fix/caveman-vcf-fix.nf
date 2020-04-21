@@ -26,8 +26,8 @@ version = '0.1.0.0'
 
 params.input_tar = ""
 params.container_version = ""
-params.cpus = 8
-params.mem = 2  // GB
+params.cpus = 2
+params.mem = 1  // GB
 
 
 process cavemanVcfFix {
