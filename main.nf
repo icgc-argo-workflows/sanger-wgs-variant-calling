@@ -2,7 +2,7 @@
 nextflow.preview.dsl=2
 name='sanger-wgs-variant-calling'
 short_name='sanger-wgs'
-version='0.1.0-dev'
+version='2.1.0-6-dev'
 
 /*
 ========================================================================================
@@ -195,7 +195,7 @@ include prepSangerSupplement as prepSupp from './modules/raw.githubusercontent.c
 include prepSangerQc as prepQc from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-qc.0.1.0.0/tools/prep-sanger-qc/prep-sanger-qc' params(prepSangerQc_params)
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
 include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.1.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
-include { songScoreUpload as upVarSnv; songScoreUpload as upVarIndel; songScoreUpload as upVarCnv; songScoreUpload as upVarSv; songScoreUpload as upQc; songScoreUpload as upVarSupp} from './song-score-utils/song-score-upload' params(upload_params)
+include { songScoreUpload as upSnv; songScoreUpload as upIndel; songScoreUpload as upCnv; songScoreUpload as upSv; songScoreUpload as upQc; songScoreUpload as upSupp} from './song-score-utils/song-score-upload' params(upload_params)
 include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/1.1.3/process/cleanup-workdir'
 
 
@@ -274,11 +274,11 @@ workflow SangerWgs {
         )
 
         // upload variant results
-        upVarSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
-        upVarIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
-        upVarCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
-        upVarSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
-        upVarSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
+        upSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
+        upIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
+        upCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
+        upSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
+        upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
 
         // prepare and upload sanger qc metrics
         prepQc(basN.out.bas_file.concat(basT.out.bas_file, repack.out.normal_contamination, repack.out.tumour_contamination,
@@ -295,9 +295,9 @@ workflow SangerWgs {
                 dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out, repack.out,
                     prepQc.out, prepSupp.out, pGenVarSnv.out, pGenVarIndel.out,
                     pGenVarCnv.out, pGenVarSv.out, pGenQc.out, pGenVarSupp.out).collect(),
-                upVarSv.out.analysis_id.concat(
-                    upVarSnv.out.analysis_id, upVarIndel.out.analysis_id, upVarCnv.out.analysis_id,
-                    upVarSupp.out.analysis_id, upQc.out.analysis_id).collect())
+                upSv.out.analysis_id.concat(
+                    upSnv.out.analysis_id, upIndel.out.analysis_id, upCnv.out.analysis_id,
+                    upSupp.out.analysis_id, upQc.out.analysis_id).collect())
         }
 
 }
