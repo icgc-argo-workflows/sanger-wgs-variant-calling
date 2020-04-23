@@ -196,7 +196,7 @@ include prepSangerQc as prepQc from './modules/raw.githubusercontent.com/icgc-ar
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
 include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.1.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
 include { songScoreUpload as upSnv; songScoreUpload as upIndel; songScoreUpload as upCnv; songScoreUpload as upSv; songScoreUpload as upQc; songScoreUpload as upSupp} from './song-score-utils/song-score-upload' params(upload_params)
-include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/1.1.4/process/cleanup-workdir'
+include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/1.1.5/process/cleanup-workdir'
 
 
 def getSecondaryFiles(main_file, exts){  //this is kind of like CWL's secondary files
