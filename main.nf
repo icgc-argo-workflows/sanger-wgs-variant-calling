@@ -113,7 +113,7 @@ params.cpus = 1
 params.mem = 1
 
 download_params = [
-    'song_container_version': '4.2.0',
+    'song_container_version': '4.2.1',
     'score_container_version': '5.0.0',
     'song_url': params.song_url,
     'score_url': params.score_url,
@@ -176,12 +176,12 @@ payloadGenVariantCall_params = [
 ]
 
 upload_params = [
-    'song_container_version': '4.0.0',
-    'score_container_version': '3.0.1',
+    'song_container_version': '4.2.1',
+    'score_container_version': '5.0.0',
     'song_url': params.song_url,
     'score_url': params.score_url,
     'api_token': params.api_token,
-    *:(params.uploadVariant ?: [:])
+    *:(params.upload ?: [:])
 ]
 
 
