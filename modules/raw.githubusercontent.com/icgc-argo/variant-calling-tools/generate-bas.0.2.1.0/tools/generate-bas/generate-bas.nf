@@ -22,7 +22,7 @@
  */
 
 nextflow.preview.dsl=2
-version = '0.2.0.0'
+version = '0.2.1.0'
 
 params.reference = "NO_FILE"
 params.seq = ""
@@ -30,6 +30,7 @@ params.seq_idx = ""
 params.container_version = ""
 params.cpus = 8
 params.mem = 2  // GB
+params.tumour_normal = "tumour"
 
 
 def getBasSecondaryFiles(main_file){  //this is kind of like CWL's secondary files
@@ -47,6 +48,7 @@ process generateBas {
   tag "${seq.size()}"
 
   input:
+    val tumour_normal
     path seq
     path seq_idx
     path reference
@@ -54,14 +56,24 @@ process generateBas {
 
   output:
     path "${seq.name}.bas", emit: bas_file
+    path "${seq.name}.${tumour_normal}.bas", emit: bas_file_with_tn
 
   script:
     arg_ref = reference.name != 'NO_FILE' ? "-r ${reference}" : ''
     """
+    set -euxo pipefail
+
+    if [ "${tumour_normal}" != "normal" ] && [ "${tumour_normal}" != "tumour" ]; then
+      echo "parameter 'tumour_normal' must be either 'tumour' or 'normal'"
+      exit 1
+    fi
+
     /opt/wtsi-cgp/bin/bam_stats \
       -i ${seq} \
       ${arg_ref} \
       --num_threads ${task.cpus} \
       -o ${seq.name}.bas
+
+    ln -s ${seq.name}.bas ${seq.name}.${tumour_normal}.bas
     """
 }

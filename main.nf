@@ -187,14 +187,14 @@ upload_params = [
 
 // Include all modules and pass params
 include { songScoreDownload as dnldT; songScoreDownload as dnldN } from './song-score-utils/song-score-download' params(download_params)
-include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.2.0.0/tools/generate-bas/generate-bas' params(generateBas_params)
+include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.2.1.0/tools/generate-bas/generate-bas' params(generateBas_params)
 include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-6/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
 include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
 include cavemanVcfFix as cavemanFix from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/caveman-vcf-fix.0.1.0.0/tools/caveman-vcf-fix/caveman-vcf-fix' params(cavemanVcfFix_params)
 include prepSangerSupplement as prepSupp from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-supplement.0.1.1.0/tools/prep-sanger-supplement/prep-sanger-supplement' params(prepSangerSupplement_params)
 include prepSangerQc as prepQc from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-qc.0.1.1.0/tools/prep-sanger-qc/prep-sanger-qc' params(prepSangerQc_params)
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
-include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.2.1.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
+include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.2.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
 include { songScoreUpload as upSnv; songScoreUpload as upIndel; songScoreUpload as upCnv; songScoreUpload as upSv; songScoreUpload as upQc; songScoreUpload as upSupp} from './song-score-utils/song-score-upload' params(upload_params)
 include cleanupWorkdir as cleanup from './modules/raw.githubusercontent.com/icgc-argo/nextflow-data-processing-utility-tools/1.1.5/process/cleanup-workdir'
 
@@ -223,12 +223,12 @@ workflow SangerWgs {
 
         // generate Bas for tumour
         basT(
-            dnldT.out.files.flatten().first(), dnldT.out.files.flatten().last(),
+            'tumour', dnldT.out.files.flatten().first(), dnldT.out.files.flatten().last(),
             file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: false).collect())
 
         // generate Bas for normal
         basN(
-            dnldN.out.files.flatten().first(), dnldN.out.files.flatten().last(),
+            'normal', dnldN.out.files.flatten().first(), dnldN.out.files.flatten().last(),
             file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: false).collect())
 
 
@@ -281,7 +281,7 @@ workflow SangerWgs {
         upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
 
         // prepare and upload sanger qc metrics
-        prepQc(basN.out.bas_file.concat(basT.out.bas_file, repack.out.normal_contamination, repack.out.tumour_contamination,
+        prepQc(basN.out.bas_file_with_tn.concat(basT.out.bas_file_with_tn, repack.out.normal_contamination, repack.out.tumour_contamination,
                  repack.out.genotyped, repack.out.ascat).collect())
         pGenQc(dnldN.out.song_analysis, dnldT.out.song_analysis,
                  prepQc.out.qc_metrics_tar,
