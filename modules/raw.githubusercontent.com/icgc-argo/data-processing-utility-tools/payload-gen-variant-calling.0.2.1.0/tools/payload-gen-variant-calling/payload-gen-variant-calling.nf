@@ -22,7 +22,7 @@
  */
 
 nextflow.preview.dsl = 2
-version = '0.1.0.0'
+version = '0.2.1.0'
 
 params.normal_analysis = ""
 params.tumour_analysis = ""
