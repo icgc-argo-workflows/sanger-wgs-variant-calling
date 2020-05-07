@@ -2,7 +2,7 @@
 nextflow.preview.dsl=2
 name='sanger-wgs-variant-calling'
 short_name='sanger-wgs'
-version='2.1.0-7-dev'
+version='2.1.0-8-dev'
 
 /*
 ========================================================================================
@@ -16,18 +16,18 @@ Linda Xiang @lindaxiang <linda.xiang@oicr.on.ca>
 ----------------------------------------------------------------------------------------
 
 Required Parameters (no default):
---study_id                              SONG study ID
---tumour_aln_analysis_id                Tumour WGS sequencing_alignment SONG analysis ID
---normal_aln_analysis_id                Normal WGS sequencing_alignment SONG analysis ID
---ref_genome_fa                         Reference genome '.fa' file, secondary file ('.fa.fai') is expected to be under the same folder
---ref_genome_tar                        Tarball containing reference genome files from the same genome build
---vagrent_annot                         Tarball containing VAGrENT annotation reference
---ref_cnv_sv_tar                        Tarball containing CNV/SV reference
---ref_snv_indel_tar                     Tarball containing SNV/Indel reference
---qcset_tar                             Tarball containing QC Genotype reference
---song_url                              SONG server URL
---score_url                             SCORE server URL
---api_token                             SONG/SCORE API Token
+--study_id                              song study ID
+--tumour_aln_analysis_id                tumour WGS sequencing_alignment SONG analysis ID
+--normal_aln_analysis_id                normal WGS sequencing_alignment SONG analysis ID
+--ref_genome_fa                         reference genome '.fa' file, secondary file ('.fa.fai') is expected to be under the same folder
+--ref_genome_tar                        tarball containing reference genome files from the same genome build
+--vagrent_annot                         tarball containing VAGrENT annotation reference
+--ref_cnv_sv_tar                        tarball containing CNV/SV reference
+--ref_snv_indel_tar                     tarball containing SNV/Indel reference
+--qcset_tar                             tarball containing QC Genotype reference
+--song_url                              song server URL
+--score_url                             score server URL
+--api_token                             song/score API Token
 
 General Parameters (with defaults):
 --cpus                                  cpus given to all process containers (default 1)
@@ -41,47 +41,88 @@ Download Parameters (object):
     song_url                            song url for download process (defaults to main song_url param)
     score_url                           score url for download process (defaults to main score_url param)
     api_token                           song/score API token for download process (defaults to main api_token param)
-    song_cpus
-    song_mem
-    score_cpus
-    score_mem
-    score_transport_mem
+    song_cpus                           cpus for song container, defaults to cpus parameter
+    song_mem                            memory (GB) for song container, defaults to mem parameter
+    score_cpus                          cpus for score container, defaults to cpus parameter
+    score_mem                           memory (GB) for score container, defaults to mem parameter
+    score_transport_mem                 memory (GB) for score_transport, defaults to mem parameter
 }
 
 generateBas Parameters (object):
 --generateBas
 {
     container_version                   docker container version, defaults to unset
-    cpus                                cpus for seqDataToLaneBam container, defaults to cpus parameter
-    mem                                 memory (GB) for seqDataToLaneBam container, defaults to mem parameter
+    cpus                                cpus for generateBas container, defaults to cpus parameter
+    mem                                 memory (GB) for generateBas container, defaults to mem parameter
+    reference                           reference genome '.fa' file, secondary file ('.fa.fai') is expected to be under the same folder
+    tumour_normal                       Tumour or Normal
 }
 
 sangerWgsVariantCaller Parameters (object):
 --sangerWgsVariantCaller
 {
     container_version                   docker container version, defaults to unset
-    cpus                                cpus for bwaMemAligner container, defaults to cpus parameter
-    mem                                 memory (GB) for bwaMemAligner container, defaults to mem parameter
+    cpus                                cpus for sangerWgsVariantCaller container, defaults to cpus parameter
+    mem                                 memory (GB) for sangerWgsVariantCaller container, defaults to mem parameter
+    species                             species name, default: 'human'
+    assembly                            reference assembly, default: 'GRCh38'
+    cavereads                           reads target per caveman split section, default: 800000
     exclude                             reference contigs to exclude, default: 'chrUn%,HLA%,%_alt,%_random,chrM,chrEBV'
     ploidy                              ploidy estimate of the genome, default: 2.0
     purity                              purity estimate of the genome, default: 1.0
+    skipqc                              disable genotype, gender and verifyBamID, default: false
+    skipannot                           disable annotation step for pindel and caveman results, default: true
+    pindelcpu                           max CPUs for pindel analysis, >8 ignored, default: 6
+    ref_genome_tar                      core reference tar.gz
+    vagrent_annot                       VAGrENT*.tar.gz
+    ref_snv_indel_tar                   SNV_INDEL*.tar.gz
+    ref_cnv_sv_tar                      CNV_SV*.tar.gz
+    qcset_tar                           qcGenotype*.tar.gz
 }
 
 repackSangerResults Parameters (object):
 --repackSangerResults
 {
     container_version                   docker container version, defaults to unset
-    cpus                                cpus for bamMergeSortMarkdup container, defaults to cpus parameter
-    mem                                 memory (GB) for bamMergeSortMarkdup container, defaults to mem parameter
+    cpus                                cpus for repackSangerResults container, defaults to cpus parameter
+    mem                                 memory (GB) for repackSangerResults container, defaults to mem parameter
     library_strategy                    library strategy of input reads, default: WGS
 }
+
+cavemanVcfFix Parameters (object):
+--cavemanVcfFix
+{
+    container_version                   docker container version, defaults to unset
+    cpus                                cpus for cavemanVcfFix container, defaults to cpus parameter
+    mem                                 memory (GB) for cavemanVcfFix container, defaults to mem parameter
+}
+
+prepSangerSupplement Parameters (object):
+--prepSangerSupplement
+{
+    container_version                   docker container version, defaults to unset
+    cpus                                cpus for prepSangerSupplement container, defaults to cpus parameter
+    mem                                 memory (GB) for prepSangerSupplement container, defaults to mem parameter
+}
+
+prepSangerQc Parameters (object):
+--prepSangerQc
+{
+    container_version                   docker container version, defaults to unset
+    cpus                                cpus for prepSangerQc container, defaults to cpus parameter
+    mem                                 memory (GB) for prepSangerQc container, defaults to mem parameter
+}
+
 
 payloadGenVariantCall (object):
 --payloadGenVariantCall
 {
     container_version                   docker container version, defaults to unset
-    cpus                                cpus for align container, defaults to cpus parameter
-    mem                                 memory (GB) for align container, defaults to mem parameter
+    cpus                                cpus for payloadGenVariantCall container, defaults to cpus parameter
+    mem                                 memory (GB) for payloadGenVariantCall container, defaults to mem parameter
+    wf_name                             workflow full name
+    wf_short_name                       workflow short name embedded in results filename
+    wf_version                          workflow version
 }
 
 Upload Parameters (object):
@@ -126,8 +167,6 @@ generateBas_params = [
 ]
 
 sangerWgsVariantCaller_params = [
-    'cpus': params.cpus,
-    'mem': params.mem,
     'species': 'human',
     'assembly': 'GRCh38',
     'cavereads': 800000,
@@ -136,7 +175,7 @@ sangerWgsVariantCaller_params = [
     'purity': 1.0,
     'skipqc': false,
     'skipannot': true,
-    'pindelcpu': 8,
+    'pindelcpu': 6,
     'ref_genome_tar': '',
     'vagrent_annot': '',
     'ref_snv_indel_tar': '',
@@ -150,25 +189,20 @@ repackSangerResults_params = [
     *:(params.repackSangerResults ?: [:])
 ]
 
-prepSangerSupplement_params = [
-    'cpus': params.cpus,
-    'mem': params.mem,
-    *:(params.prepSangerSupplement ?: [:])
-]
-
-prepSangerQc_params = [
-    'cpus': params.cpus,
-    'mem': params.mem,
-    *:(params.prepSangerQc ?: [:])
-]
-
 cavemanVcfFix_params = [
     *:(params.cavemanVcfFix ?: [:])
 ]
 
-
 extractSangerCall_params = [
     *:(params.extractSangerCall ?: [:])
+]
+
+prepSangerSupplement_params = [
+    *:(params.prepSangerSupplement ?: [:])
+]
+
+prepSangerQc_params = [
+    *:(params.prepSangerQc ?: [:])
 ]
 
 payloadGenVariantCall_params = [
@@ -191,7 +225,7 @@ include { generateBas as basT; generateBas as basN; } from './modules/raw.github
 include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-6/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
 include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
 include cavemanVcfFix as cavemanFix from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/caveman-vcf-fix.0.1.0.0/tools/caveman-vcf-fix/caveman-vcf-fix' params(cavemanVcfFix_params)
-include prepSangerSupplement as prepSupp from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-supplement.0.1.1.0/tools/prep-sanger-supplement/prep-sanger-supplement' params(prepSangerSupplement_params)
+include prepSangerSupplement as prepSupp from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-supplement.0.1.2.0/tools/prep-sanger-supplement/prep-sanger-supplement' params(prepSangerSupplement_params)
 include prepSangerQc as prepQc from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-qc.0.1.1.0/tools/prep-sanger-qc/prep-sanger-qc' params(prepSangerQc_params)
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
 include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.2.0.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
