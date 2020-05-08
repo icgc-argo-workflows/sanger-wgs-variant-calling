@@ -154,6 +154,8 @@ params.cpus = 1
 params.mem = 1
 
 download_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     'song_container_version': '4.2.1',
     'score_container_version': '5.0.0',
     'song_url': params.song_url,
@@ -163,10 +165,14 @@ download_params = [
 ]
 
 generateBas_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     *:(params.generateBas ?: [:])
 ]
 
 sangerWgsVariantCaller_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     'species': 'human',
     'assembly': 'GRCh38',
     'cavereads': 800000,
@@ -185,31 +191,45 @@ sangerWgsVariantCaller_params = [
 ]
 
 repackSangerResults_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     'library_strategy': 'WGS',
     *:(params.repackSangerResults ?: [:])
 ]
 
 cavemanVcfFix_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     *:(params.cavemanVcfFix ?: [:])
 ]
 
 extractSangerCall_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     *:(params.extractSangerCall ?: [:])
 ]
 
 prepSangerSupplement_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     *:(params.prepSangerSupplement ?: [:])
 ]
 
 prepSangerQc_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     *:(params.prepSangerQc ?: [:])
 ]
 
 payloadGenVariantCall_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     *:(params.payloadGenVariantCall ?: [:])
 ]
 
 upload_params = [
+    'cpus': params.cpus,
+    'mem': params.mem,
     'song_container_version': '4.2.1',
     'score_container_version': '5.0.0',
     'song_url': params.song_url,
