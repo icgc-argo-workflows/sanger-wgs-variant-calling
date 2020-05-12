@@ -2,7 +2,7 @@
 nextflow.preview.dsl=2
 name='sanger-wgs-variant-calling'
 short_name='sanger-wgs'
-version='2.1.0-6-1.dev'
+version='2.1.0-7-1.dev'
 
 /*
 ========================================================================================
@@ -147,7 +147,9 @@ Upload Parameters (object):
 params.study_id = ""
 params.tumour_aln_analysis_id = ""
 params.normal_aln_analysis_id = ""
-params.ref_genome_fa = ""
+params.api_token = ""
+params.song_url = ""
+params.score_url = ""
 params.cleanup = true
 
 params.cpus = 1
@@ -168,8 +170,6 @@ params.extractSangerCall = [:]
 download_params = [
     'cpus': params.cpus,
     'mem': params.mem,
-    'song_container_version': '4.2.1',
-    'score_container_version': '5.0.0',
     'song_url': params.song_url,
     'score_url': params.score_url,
     'api_token': params.api_token,
@@ -179,6 +179,7 @@ download_params = [
 generateBas_params = [
     'cpus': params.cpus,
     'mem': params.mem,
+    'ref_genome_fa': '',
     *:(params.generateBas ?: [:])
 ]
 
@@ -189,8 +190,6 @@ sangerWgsVariantCaller_params = [
     'assembly': 'GRCh38',
     'cavereads': 800000,
     'exclude': 'chrUn%,HLA%,%_alt,%_random,chrM,chrEBV',
-    'ploidy': 2.0,
-    'purity': 1.0,
     'skipqc': false,
     'skipannot': true,
     'pindelcpu': 6,
@@ -242,8 +241,6 @@ payloadGenVariantCall_params = [
 upload_params = [
     'cpus': params.cpus,
     'mem': params.mem,
-    'song_container_version': '4.2.1',
-    'score_container_version': '5.0.0',
     'song_url': params.song_url,
     'score_url': params.score_url,
     'api_token': params.api_token,
@@ -254,7 +251,7 @@ upload_params = [
 // Include all modules and pass params
 include { songScoreDownload as dnldT; songScoreDownload as dnldN } from './song-score-utils/song-score-download' params(download_params)
 include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.2.1.0/tools/generate-bas/generate-bas' params(generateBas_params)
-include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-6/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
+include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-7/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
 include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
 include cavemanVcfFix as cavemanFix from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/caveman-vcf-fix.0.1.0.0/tools/caveman-vcf-fix/caveman-vcf-fix' params(cavemanVcfFix_params)
 include prepSangerSupplement as prepSupp from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-supplement.0.1.2.0/tools/prep-sanger-supplement/prep-sanger-supplement' params(prepSangerSupplement_params)
