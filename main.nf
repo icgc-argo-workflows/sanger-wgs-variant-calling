@@ -275,7 +275,6 @@ workflow SangerWgs {
         study_id
         tumour_aln_analysis_id
         normal_aln_analysis_id
-        ref_genome_fa
 
     main:
         // download tumour aligned seq and metadata from song/score (analysis type: sequencing_alignment)
@@ -287,12 +286,12 @@ workflow SangerWgs {
         // generate Bas for tumour
         basT(
             'tumour', dnldT.out.files.flatten().first(), dnldT.out.files.flatten().last(),
-            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: false).collect())
+            file(params.generateBas.ref_genome_fa), Channel.fromPath(getSecondaryFiles(params.generateBas.ref_genome_fa, ['.fai']), checkIfExists: false).collect())
 
         // generate Bas for normal
         basN(
             'normal', dnldN.out.files.flatten().first(), dnldN.out.files.flatten().last(),
-            file(ref_genome_fa), Channel.fromPath(getSecondaryFiles(ref_genome_fa, ['.fai']), checkIfExists: false).collect())
+            file(params.generateBas.ref_genome_fa), Channel.fromPath(getSecondaryFiles(params.generateBas.ref_genome_fa, ['.fai']), checkIfExists: false).collect())
 
 
         sangerWgs(
@@ -370,7 +369,6 @@ workflow {
     SangerWgs(
         params.study_id,
         params.tumour_aln_analysis_id,
-        params.normal_aln_analysis_id,
-        params.ref_genome_fa
+        params.normal_aln_analysis_id
     )
 }
