@@ -23,7 +23,7 @@
  */
 
 nextflow.preview.dsl=2
-version = '2.1.0-8'
+version = '2.1.0-9'
 
 params.ref_genome_tar = ""
 params.vagrent_annot = ""
@@ -41,8 +41,8 @@ params.skipqc = false
 params.skipannot = false
 params.pindelcpu = 8
 params.cavereads = 350000
-params.purity = ""
-params.ploidy = ""
+params.purity = null
+params.ploidy = null
 params.container_version = ""
 params.cpus = 24
 params.mem = 128  // GB
@@ -86,8 +86,8 @@ process sangerWgsVariantCaller {
   script:
     arg_skipqc = params.skipqc ? "-skipqc" : ""
     arg_skipannot = params.skipannot ? "-skipannot" : ""
-    arg_pu = params.purity ? "-pu ${params.purity}" : ""
-    arg_pi = params.ploidy ? "-pu ${params.ploidy}" : ""
+    arg_pu = (params.purity!=null) ? "-pu ${params.purity}" : ""
+    arg_pi = (params.ploidy!=null) ? "-pi ${params.ploidy}" : ""
     """
     /opt/wtsi-cgp/bin/ds-cgpwgs.pl \
       -cores ${task.cpus} \
