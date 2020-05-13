@@ -2,7 +2,6 @@
     "study_id":"TEST-PR",
     "tumour_aln_analysis_id":"ad7e2df1-03ea-4dae-be2d-f103ea7dae3a",
     "normal_aln_analysis_id":"ce2a49b2-2bda-4ded-aa49-b22bdaadedb3",
-    "ref_genome_fa":"/nfs-dev-1-vol-qa-1/reference/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa",
     "song_url":"https://song.rdpc-qa.cancercollaboratory.org",
     "score_url":"https://score.rdpc-qa.cancercollaboratory.org",
     "api_token":"INSERT-TOKEN-HERE",
@@ -16,7 +15,8 @@
     },
     "generateBas":{
       "cpus":6,
-      "mem":8
+      "mem":8,
+      "ref_genome_fa":"/nfs-dev-1-vol-qa-1/reference/GRCh38_hla_decoy_ebv/GRCh38_hla_decoy_ebv.fa"
     },
     "sangerWgsVariantCaller":{
       "cpus":12,

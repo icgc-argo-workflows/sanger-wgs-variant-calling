@@ -2,7 +2,7 @@
 nextflow.preview.dsl=2
 name='sanger-wgs-variant-calling'
 short_name='sanger-wgs'
-version='2.1.0-7-1.dev'
+version='2.1.0-8-1.dev'
 
 /*
 ========================================================================================
@@ -54,7 +54,7 @@ generateBas Parameters (object):
     container_version                   docker container version, defaults to unset
     cpus                                cpus for generateBas container, defaults to cpus parameter
     mem                                 memory (GB) for generateBas container, defaults to mem parameter
-    reference                           reference genome '.fa' file, secondary file ('.fa.fai') is expected to be under the same folder
+    ref_genome_fa                       reference genome '.fa' file, secondary file ('.fa.fai') is expected to be under the same folder
     tumour_normal                       Tumour or Normal
 }
 
@@ -68,8 +68,8 @@ sangerWgsVariantCaller Parameters (object):
     assembly                            reference assembly, default: 'GRCh38'
     cavereads                           reads target per caveman split section, default: 800000
     exclude                             reference contigs to exclude, default: 'chrUn%,HLA%,%_alt,%_random,chrM,chrEBV'
-    ploidy                              ploidy estimate of the genome, default: 2.0
-    purity                              purity estimate of the genome, default: 1.0
+    ploidy                              ploidy estimate of the genome, need to set purity if set ploidy
+    purity                              purity estimate of the genome, need to set ploidy if set purity
     skipqc                              disable genotype, gender and verifyBamID, default: false
     skipannot                           disable annotation step for pindel and caveman results, default: true
     pindelcpu                           max CPUs for pindel analysis, >8 ignored, default: 6
@@ -193,6 +193,8 @@ sangerWgsVariantCaller_params = [
     'skipqc': false,
     'skipannot': true,
     'pindelcpu': 6,
+    'purity': '',
+    'ploidy': '',
     'ref_genome_tar': '',
     'vagrent_annot': '',
     'ref_snv_indel_tar': '',
@@ -251,7 +253,7 @@ upload_params = [
 // Include all modules and pass params
 include { songScoreDownload as dnldT; songScoreDownload as dnldN } from './song-score-utils/song-score-download' params(download_params)
 include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.2.1.0/tools/generate-bas/generate-bas' params(generateBas_params)
-include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-7/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
+include sangerWgsVariantCaller as sangerWgs from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-8/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
 include repackSangerResults as repack from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
 include cavemanVcfFix as cavemanFix from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/caveman-vcf-fix.0.1.0.0/tools/caveman-vcf-fix/caveman-vcf-fix' params(cavemanVcfFix_params)
 include prepSangerSupplement as prepSupp from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-supplement.0.1.2.0/tools/prep-sanger-supplement/prep-sanger-supplement' params(prepSangerSupplement_params)

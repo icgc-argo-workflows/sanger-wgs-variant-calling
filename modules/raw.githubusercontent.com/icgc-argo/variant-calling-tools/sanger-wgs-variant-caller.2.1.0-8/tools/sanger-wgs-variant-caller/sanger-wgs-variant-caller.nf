@@ -23,7 +23,7 @@
  */
 
 nextflow.preview.dsl=2
-version = '2.1.0-7'
+version = '2.1.0-8'
 
 params.ref_genome_tar = ""
 params.vagrent_annot = ""
@@ -86,8 +86,8 @@ process sangerWgsVariantCaller {
   script:
     arg_skipqc = params.skipqc ? "-skipqc" : ""
     arg_skipannot = params.skipannot ? "-skipannot" : ""
-    arg_pu = params.pu ? "-pu ${params.pu}" : ""
-    arg_pi = params.pi ? "-pu ${params.pi}" : ""
+    arg_pu = params.purity ? "-pu ${params.purity}" : ""
+    arg_pi = params.ploidy ? "-pu ${params.ploidy}" : ""
     """
     /opt/wtsi-cgp/bin/ds-cgpwgs.pl \
       -cores ${task.cpus} \
