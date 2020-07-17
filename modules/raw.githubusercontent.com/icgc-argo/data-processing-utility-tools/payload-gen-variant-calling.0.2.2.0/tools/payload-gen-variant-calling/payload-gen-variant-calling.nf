@@ -22,7 +22,7 @@
  */
 
 nextflow.preview.dsl = 2
-version = '0.2.0.0'
+version = '0.2.2.0'
 
 params.normal_analysis = ""
 params.tumour_analysis = ""
@@ -58,6 +58,7 @@ process payloadGenVariantCalling {
          -f ${files_to_upload} \
          -n ${normal_analysis} \
          -r ${workflow.runName} \
+         -j ${workflow.sessionId} \
          -w ${wf_name} \
          -s ${wf_short_name} \
          -v ${wf_version} ${args_tumour_analysis}
