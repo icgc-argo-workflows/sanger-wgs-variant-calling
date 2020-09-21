@@ -21,8 +21,8 @@
  * Author Junjun Zhang <junjun.zhang@oicr.on.ca>
  */
 
-nextflow.preview.dsl = 2
-version = '0.2.2.0'
+nextflow.enable.dsl = 2
+version = '0.3.3.0'
 
 params.normal_analysis = ""
 params.tumour_analysis = ""
@@ -33,11 +33,13 @@ params.wf_version = ""
 params.container_version = ''
 params.cpus = 1
 params.mem = 1  // GB
+params.publish_dir = ""
 
 process payloadGenVariantCalling {
   container "quay.io/icgc-argo/payload-gen-variant-calling:payload-gen-variant-calling.${params.container_version ?: version}"
   cpus params.cpus
   memory "${params.mem} GB"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", enabled: "${params.publish_dir ? true : ''}"
 
   input:
     path normal_analysis
