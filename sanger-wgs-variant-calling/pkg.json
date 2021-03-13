@@ -1,0 +1,31 @@
+{
+    "name": "sanger-wgs-variant-calling",
+    "version": "2.1.0-9.2.0",
+    "description": "ICGC ARGO Sanger WGS Variant Calling Workflow",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics",
+        "cancer genomics",
+        "variant calling",
+        "wgs"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/icgc-argo/sanger-wgs-variant-calling.git"
+    },
+    "dependencies": [
+        "github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.0",
+        "github.com/icgc-argo/data-processing-utility-tools/cleanup-workdir@1.0.0"
+    ],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "Junjun Zhang",
+            "email": "junjun.ca@gmail.com"
+        }
+    ],
+    "license": "GNU Affero General Public License v3",
+    "bugReport": "https://github.com/icgc-argo/sanger-wgs-variant-calling/issues",
+    "homepage": "https://github.com/icgc-argo/sanger-wgs-variant-calling#readme"
+}
