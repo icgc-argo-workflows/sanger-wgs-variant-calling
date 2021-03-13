@@ -21,8 +21,10 @@
     "devDependencies": [],
     "contributors": [
         {
-            "name": "Junjun Zhang",
-            "email": "junjun.ca@gmail.com"
+            "name": "Junjun Zhang"
+        },
+        {
+            "name": "Linda Xiang"
         }
     ],
     "license": "GNU Affero General Public License v3",
