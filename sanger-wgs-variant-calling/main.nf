@@ -417,15 +417,6 @@ workflow SangerWgs {
             name, short_name, version
         )
 
-        // upload variant results
-        if (!local_mode) {
-            upSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
-            upIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
-            upCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
-            upSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
-            upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
-        }
-
         // prepare and upload sanger qc metrics
         prepQc(
             basN.out.bas_file_with_tn.concat(
@@ -438,7 +429,15 @@ workflow SangerWgs {
             name, short_name, version
         )
 
-        upQc(study_id, pGenQc.out.payload, pGenQc.out.files_to_upload)
+        // upload variant results
+        if (!local_mode) {
+            upSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
+            upIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
+            upCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
+            upSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
+            upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
+            upQc(study_id, pGenQc.out.payload, pGenQc.out.files_to_upload)
+        }
 
         if (params.cleanup) {
             if (local_mode) {
