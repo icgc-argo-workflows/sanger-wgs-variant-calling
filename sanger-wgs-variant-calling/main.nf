@@ -147,10 +147,22 @@ Upload Parameters (object):
 params.study_id = ""
 params.tumour_aln_analysis_id = ""
 params.normal_aln_analysis_id = ""
+
+// the following params if provided local files will be used
+params.tumour_aln_metadata = "NO_FILE1"
+params.tumour_aln_cram = "NO_FILE2"
+params.tumour_extra_info = "NO_FILE3"
+params.normal_aln_metadata = "NO_FILE4"
+params.normal_aln_cram = "NO_FILE5"
+params.normal_extra_info = "NO_FILE6"
+
+// dir for outputs, must be set when running in local mode
+params.publish_dir = ""
+params.cleanup = true
+
 params.api_token = ""
 params.song_url = ""
 params.score_url = ""
-params.cleanup = true
 
 params.cpus = 1
 params.mem = 1
@@ -237,6 +249,7 @@ prepSangerQc_params = [
 payloadGenVariantCall_params = [
     'cpus': params.cpus,
     'mem': params.mem,
+    'publish_dir': params.publish_dir,
     *:(params.payloadGenVariantCall ?: [:])
 ]
 
@@ -259,10 +272,18 @@ include { cavemanVcfFix as cavemanFix } from './modules/raw.githubusercontent.co
 include { prepSangerSupplement as prepSupp } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-supplement.0.1.2.0/tools/prep-sanger-supplement/prep-sanger-supplement' params(prepSangerSupplement_params)
 include { prepSangerQc as prepQc } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-qc.0.1.2.0/tools/prep-sanger-qc/prep-sanger-qc' params(prepSangerQc_params)
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
-include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.3.4.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
+include {
+    payloadGenVariantCalling as pGenVarSnv;
+    payloadGenVariantCalling as pGenVarIndel;
+    payloadGenVariantCalling as pGenVarCnv;
+    payloadGenVariantCalling as pGenVarSv;
+    payloadGenVariantCalling as pGenVarSupp;
+    payloadGenVariantCalling as pGenQc
+} from "./modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling.0.3.4.0/tools/payload-gen-variant-calling/payload-gen-variant-calling" params(payloadGenVariantCall_params)
 include { songScoreUpload as upSnv; songScoreUpload as upIndel; songScoreUpload as upCnv; songScoreUpload as upSv; songScoreUpload as upQc; songScoreUpload as upSupp} from './song-score-utils/song-score-upload' params(upload_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/cleanup-workdir@1.0.0/main'
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.0/main'
+include { payloadAddUniformIds as pAddIdT; payloadAddUniformIds as pAddIdN } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/payload-add-uniform-ids@0.1.1/main'
 
 
 workflow SangerWgs {
@@ -270,22 +291,73 @@ workflow SangerWgs {
         study_id
         tumour_aln_analysis_id
         normal_aln_analysis_id
+        tumour_aln_metadata
+        tumour_aln_cram
+        tumour_extra_info
+        normal_aln_metadata
+        normal_aln_cram
+        normal_extra_info
 
     main:
-        // download tumour aligned seq and metadata from song/score (analysis type: sequencing_alignment)
-        dnldT(study_id, tumour_aln_analysis_id)
+        local_mode = false
 
-        // download normal aligned seq and metadata from song/score (analysis type: sequencing_alignment)
-        dnldN(study_id, normal_aln_analysis_id)
+        tumour_aln_seq = Channel.from()
+        tumour_aln_seq_idx = Channel.from()
+        normal_aln_seq = Channel.from()
+        normal_aln_seq_idx = Channel.from()
+
+        if (tumour_aln_analysis_id && normal_aln_analysis_id) {
+            log.info "Run the workflow using input metadata / sequencing data from SONG/SCORE servers"
+
+            // download tumour aligned seq and metadata from song/score (analysis type: sequencing_alignment)
+            dnldT(study_id, tumour_aln_analysis_id)
+            tumour_aln_seq = dnldT.out.files.flatten().first()
+            tumour_aln_seq_idx = dnldT.out.files.flatten().last()
+            tumour_aln_meta = dnldT.out.song_analysis
+
+            // download normal aligned seq and metadata from song/score (analysis type: sequencing_alignment)
+            dnldN(study_id, normal_aln_analysis_id)
+            normal_aln_seq = dnldN.out.files.flatten().first()
+            normal_aln_seq_idx = dnldN.out.files.flatten().last()
+            normal_aln_meta = dnldN.out.song_analysis
+        } else if (
+            !tumour_aln_metadata.startsWith('NO_FILE') && \
+            !tumour_aln_cram.startsWith('NO_FILE') && \
+            !tumour_extra_info.startsWith('NO_FILE') && \
+            !normal_aln_metadata.startsWith('NO_FILE') && \
+            !normal_aln_cram.startsWith('NO_FILE') && \
+            !normal_extra_info.startsWith('NO_FILE')
+        ) {
+            if (!params.publish_dir) {
+                exit 1, "When use local inputs, params.publish_dir must be specified."
+            } else {
+                log.info "Use local inputs, outputs will be in: ${params.publish_dir}"
+            }
+
+            local_mode = true
+
+            tumour_aln_seq = file(tumour_aln_cram)
+            tumour_aln_seq_idx = Channel.fromPath(getSecondaryFiles(tumour_aln_cram, ['crai', 'bai']))
+            pAddIdT(file(tumour_aln_metadata), file(tumour_extra_info))
+            tumour_aln_meta = pAddIdT.out.payload
+
+            normal_aln_seq = file(normal_aln_cram)
+            normal_aln_seq_idx = Channel.fromPath(getSecondaryFiles(normal_aln_cram, ['crai', 'bai']))
+            pAddIdN(file(normal_aln_metadata), file(normal_extra_info))
+            normal_aln_meta = pAddIdN.out.payload
+        } else {
+            exit 1, "To download input aligned seq files from SONG/SCORE, please provide `params.tumour_aln_analysis_id` and `params.normal_aln_analysis_id`.\n" +
+                "Or please provide `params.tumour_aln_metadata`, `params.tumour_aln_cram`, `params.tumour_extra_info`, `params.normal_aln_metadata`, `params.normal_aln_cram` and `params.normal_extra_info` to use local files as input."
+        }
 
         // generate Bas for tumour
         basT(
-            'tumour', dnldT.out.files.flatten().first(), dnldT.out.files.flatten().last(),
+            'tumour', tumour_aln_seq, tumour_aln_seq_idx.collect(),
             file(params.generateBas.ref_genome_fa), Channel.fromPath(getSecondaryFiles(params.generateBas.ref_genome_fa, ['fai']), checkIfExists: false).collect())
 
         // generate Bas for normal
         basN(
-            'normal', dnldN.out.files.flatten().first(), dnldN.out.files.flatten().last(),
+            'normal', normal_aln_seq, normal_aln_seq_idx.collect(),
             file(params.generateBas.ref_genome_fa), Channel.fromPath(getSecondaryFiles(params.generateBas.ref_genome_fa, ['fai']), checkIfExists: false).collect())
 
 
@@ -295,11 +367,11 @@ workflow SangerWgs {
             file(params.sangerWgsVariantCaller.ref_snv_indel_tar),
             file(params.sangerWgsVariantCaller.ref_cnv_sv_tar),
             file(params.sangerWgsVariantCaller.qcset_tar),
-            dnldT.out.files.flatten().first(),  // aln seq
-            dnldT.out.files.flatten().last(),
+            tumour_aln_seq,  // aln seq
+            tumour_aln_seq_idx.collect(),  // idx
             basT.out.bas_file,  // bas
-            dnldN.out.files.flatten().first(),  // aln seq
-            dnldN.out.files.flatten().last(),  // idx
+            normal_aln_seq,  // aln seq
+            normal_aln_seq_idx.collect(),  // idx
             basN.out.bas_file  // bas
         )
 
@@ -319,42 +391,77 @@ workflow SangerWgs {
         prepSupp(cavemanFix.out.fixed_tar.concat(
                     repack.out.pindel, repack.out.ascat, repack.out.brass, sangerWgs.out.timings).collect())
 
-        pGenVarSnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSnv.out.extracted_files, name, short_name, version)
-        pGenVarIndel(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarIndel.out.extracted_files, name, short_name, version)
-        pGenVarCnv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarCnv.out.extracted_files, name, short_name, version)
-        pGenVarSv(dnldN.out.song_analysis, dnldT.out.song_analysis, extractVarSv.out.extracted_files, name, short_name, version)
-
+        pGenVarSnv(
+            normal_aln_meta, tumour_aln_meta,
+            extractVarSnv.out.extracted_files,
+            name, short_name, version
+        )
+        pGenVarIndel(
+            normal_aln_meta, tumour_aln_meta,
+            extractVarIndel.out.extracted_files,
+            name, short_name, version
+        )
+        pGenVarCnv(
+            normal_aln_meta, tumour_aln_meta,
+            extractVarCnv.out.extracted_files,
+            name, short_name, version
+        )
+        pGenVarSv(
+            normal_aln_meta, tumour_aln_meta,
+            extractVarSv.out.extracted_files,
+            name, short_name, version
+        )
         pGenVarSupp(
-            dnldN.out.song_analysis, dnldT.out.song_analysis,
+            normal_aln_meta, tumour_aln_meta,
             prepSupp.out.supplement_tar.collect(),
             name, short_name, version
         )
 
         // upload variant results
-        upSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
-        upIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
-        upCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
-        upSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
-        upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
+        if (!local_mode) {
+            upSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
+            upIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
+            upCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
+            upSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
+            upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
+        }
 
         // prepare and upload sanger qc metrics
-        prepQc(basN.out.bas_file_with_tn.concat(basT.out.bas_file_with_tn, repack.out.normal_contamination, repack.out.tumour_contamination,
-                 repack.out.genotyped, repack.out.ascat).collect())
-        pGenQc(dnldN.out.song_analysis, dnldT.out.song_analysis,
-                 prepQc.out.qc_metrics_tar,
-                 name, short_name, version)
+        prepQc(
+            basN.out.bas_file_with_tn.concat(
+                basT.out.bas_file_with_tn, repack.out.normal_contamination, repack.out.tumour_contamination,
+                repack.out.genotyped, repack.out.ascat).collect()
+        )
+        pGenQc(
+            normal_aln_meta, tumour_aln_meta,
+            prepQc.out.qc_metrics_tar,
+            name, short_name, version
+        )
 
         upQc(study_id, pGenQc.out.payload, pGenQc.out.files_to_upload)
 
-
         if (params.cleanup) {
-            cleanup(
-                dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out, repack.out,
-                    prepQc.out, prepSupp.out, pGenVarSnv.out, pGenVarIndel.out,
-                    pGenVarCnv.out, pGenVarSv.out, pGenQc.out, pGenVarSupp.out).collect(),
-                upSv.out.analysis_id.concat(
-                    upSnv.out.analysis_id, upIndel.out.analysis_id, upCnv.out.analysis_id,
-                    upSupp.out.analysis_id, upQc.out.analysis_id).collect())
+            if (local_mode) {
+                cleanup(
+                    basT.out.bas_file.concat(basN.out, sangerWgs.out, repack.out.pindel,
+                        cavemanFix.out.fixed_tar, extractVarSnv.out.extracted_files, extractVarIndel.out.extracted_files,
+                        extractVarCnv.out.extracted_files, extractVarSv.out.extracted_files,
+                        prepQc.out, prepSupp.out, pGenVarSnv.out, pGenVarIndel.out,
+                        pGenVarCnv.out, pGenVarSv.out, pGenQc.out, pGenVarSupp.out).collect(),
+                    true
+                )
+            } else {
+                cleanup(
+                    dnldT.out.files.concat(dnldN.out, basT.out, basN.out, sangerWgs.out, repack.out.pindel,
+                        cavemanFix.out.fixed_tar, extractVarSnv.out.extracted_files, extractVarIndel.out.extracted_files,
+                        extractVarCnv.out.extracted_files, extractVarSv.out.extracted_files,
+                        prepQc.out, prepSupp.out, pGenVarSnv.out, pGenVarIndel.out,
+                        pGenVarCnv.out, pGenVarSv.out, pGenQc.out, pGenVarSupp.out).collect(),
+                    upSv.out.analysis_id.concat(
+                        upSnv.out.analysis_id, upIndel.out.analysis_id, upCnv.out.analysis_id,
+                        upSupp.out.analysis_id, upQc.out.analysis_id).collect()
+                )
+            }
         }
 
 }
@@ -364,6 +471,12 @@ workflow {
     SangerWgs(
         params.study_id,
         params.tumour_aln_analysis_id,
-        params.normal_aln_analysis_id
+        params.normal_aln_analysis_id,
+        params.tumour_aln_metadata,
+        params.tumour_aln_cram,
+        params.tumour_extra_info,
+        params.normal_aln_metadata,
+        params.normal_aln_cram,
+        params.normal_extra_info
     )
 }

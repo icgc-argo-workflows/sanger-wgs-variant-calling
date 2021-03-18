@@ -26,8 +26,17 @@ nextflow.enable.dsl=2
 params.tumour_aln_analysis_id = ""
 params.normal_aln_analysis_id = ""
 
-params.publish_dir = ""  // dir for outputs, must be set when running in local mode
+// the following params if provided local files will be used
+params.tumour_aln_metadata = "NO_FILE1"
+params.tumour_aln_cram = "NO_FILE2"
+params.tumour_extra_info = "NO_FILE3"
+params.normal_aln_metadata = "NO_FILE4"
+params.normal_aln_cram = "NO_FILE5"
+params.normal_extra_info = "NO_FILE6"
 
+// dir for outputs, must be set when running in local mode
+params.publish_dir = ""
+params.cleanup = true
 
 params.wf_name = ""
 params.wf_short_name = ""
@@ -37,7 +46,6 @@ params.song_url = ""
 params.score_url = ""
 params.cpus = 1
 params.mem = 1  // GB
-params.cleanup = true
 
 include { SangerWgs } from "../main" params(params)
 
@@ -46,6 +54,12 @@ workflow {
   SangerWgs(
     params.study_id,
     params.tumour_aln_analysis_id,
-    params.normal_aln_analysis_id
+    params.normal_aln_analysis_id,
+    params.tumour_aln_metadata,
+    params.tumour_aln_cram,
+    params.tumour_extra_info,
+    params.normal_aln_metadata,
+    params.normal_aln_cram,
+    params.normal_extra_info
   )
 }
