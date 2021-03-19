@@ -1,0 +1,51 @@
+{
+    "study_id":"TEST-PR",
+    "tumour_aln_metadata": "data/T.dna_alignment.payload.json",
+    "tumour_aln_cram": "data/TEST-PR.DO250183.SA610229.wgs.20200404.aln.cram",
+    "tumour_extra_info": "data/T.extra_info.tsv",
+    "normal_aln_metadata": "data/N.dna_alignment.payload.json",
+    "normal_aln_cram": "data/TEST-PR.DO250183.SA610228.wgs.20200404.aln.cram",
+    "normal_extra_info": "data/N.extra_info.tsv",
+    "publish_dir": "outdir",
+    "cpus":2,
+    "mem":6,
+    "generateBas":{
+      "cpus":6,
+      "mem":8,
+      "ref_genome_fa":"/home/ubuntu/references/grch38/GRCh38_hla_decoy_ebv.fa"
+    },
+    "sangerWgsVariantCaller":{
+      "cpus":8,
+      "mem":72,
+      "ref_genome_tar":"/home/ubuntu/references/sanger/core_ref_GRCh38_hla_decoy_ebv.tar.gz",
+      "vagrent_annot":"/home/ubuntu/references/sanger/VAGrENT_ref_GRCh38_hla_decoy_ebv_ensembl_91.tar.gz",
+      "ref_snv_indel_tar":"/home/ubuntu/references/sanger/SNV_INDEL_ref_GRCh38_hla_decoy_ebv-fragment.tar.gz",
+      "ref_cnv_sv_tar":"/home/ubuntu/references/sanger/CNV_SV_ref_GRCh38_hla_decoy_ebv_brass6+.tar.gz",
+      "qcset_tar":"/home/ubuntu/references/sanger/qcGenotype_GRCh38_hla_decoy_ebv.tar.gz",
+      "exclude":"chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr22,chrX,chrY,chrUn%,HLA%,%_alt,%_random,chrM,chrEBV"
+    },
+    "repackSangerResults":{
+      "cpus":2,
+      "mem":4
+    },
+    "prepSangerSupplement":{
+      "cpus":2,
+      "mem":8
+    },
+    "cavemanVcfFix":{
+      "cpus":2,
+      "mem":16
+    },
+    "extractSangerCall":{
+      "cpus":2,
+      "mem":4
+    },
+    "payloadGenVariantCall":{
+      "cpus":2,
+      "mem":8
+    },
+    "prepSangerQc":{
+      "cpus":2,
+      "mem":8
+    }
+  }

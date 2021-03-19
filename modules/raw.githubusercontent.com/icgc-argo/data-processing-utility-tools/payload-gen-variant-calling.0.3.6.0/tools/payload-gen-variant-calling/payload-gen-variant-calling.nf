@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 /*
- * Copyright (c) 2019-2020, Ontario Institute for Cancer Research (OICR).
+ * Copyright (c) 2019-2021, Ontario Institute for Cancer Research (OICR).
  *                                                                                                               
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -22,7 +22,7 @@
  */
 
 nextflow.enable.dsl = 2
-version = '0.3.4.0'
+version = '0.3.6.0'
 
 params.normal_analysis = ""
 params.tumour_analysis = ""
@@ -39,7 +39,7 @@ process payloadGenVariantCalling {
   container "quay.io/icgc-argo/payload-gen-variant-calling:payload-gen-variant-calling.${params.container_version ?: version}"
   cpus params.cpus
   memory "${params.mem} GB"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", enabled: "${params.publish_dir ? true : ''}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
 
   input:
     path normal_analysis
