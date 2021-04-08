@@ -6,6 +6,8 @@
   "score_url":"https://score.rdpc-qa.cancercollaboratory.org",
   "cpus":2,
   "mem":6,
+  "max_retries": 3,
+  "first_retry_wait_time": 5,
   "download":{
     "song_cpus":2,
     "song_mem":2,
