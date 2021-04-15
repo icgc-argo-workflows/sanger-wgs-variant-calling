@@ -2,7 +2,7 @@
 nextflow.preview.dsl=2
 name='sanger-wgs-variant-calling'
 short_name='sanger-wgs'
-version = '2.1.0-9.3.0'
+version = '2.1.0-9.4.0'
 
 /*
 ========================================================================================
