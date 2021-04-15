@@ -23,9 +23,11 @@
  */
 
 nextflow.preview.dsl = 2
-version = '0.1.2.0'
+version = '0.1.3.0'
 
 params.qc_files = ""
+params.publish_dir = ""
+
 params.container_version = ""
 params.cpus = 1
 params.mem = 2  // in GB
@@ -33,6 +35,8 @@ params.mem = 2  // in GB
 
 process prepSangerQc {
   container "quay.io/icgc-argo/prep-sanger-qc:prep-sanger-qc.${params.container_version ?: version}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+
   cpus params.cpus
   memory "${params.mem} GB"
 

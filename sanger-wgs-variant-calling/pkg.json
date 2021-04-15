@@ -15,6 +15,7 @@
         "url": "https://github.com/icgc-argo/sanger-wgs-variant-calling.git"
     },
     "dependencies": [
+        "github.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling@0.4.0",
         "github.com/icgc-argo/data-processing-utility-tools/payload-add-uniform-ids@0.1.1",
         "github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.0",
         "github.com/icgc-argo/data-processing-utility-tools/cleanup-workdir@1.0.0",
