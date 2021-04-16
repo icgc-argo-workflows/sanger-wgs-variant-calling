@@ -21,22 +21,39 @@
  * Author Junjun Zhang <junjun.zhang@oicr.on.ca>
  */
 
+/********************************************************************/
+/* this block is auto-generated based on info from pkg.json where   */
+/* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.3.6.0'
+version = '0.4.0'  // package version
 
+container = [
+    'ghcr.io': 'ghcr.io/icgc-argo/data-processing-utility-tools.payload-gen-variant-calling'
+]
+default_container_registry = 'ghcr.io'
+/********************************************************************/
+
+
+// universal params go here
+params.container_registry = ""
+params.container_version = ""
+params.container = ""
+
+params.cpus = 1
+params.mem = 1  // GB
+params.publish_dir = ""  // set to empty string will disable publishDir
+
+// tool specific parmas go here, add / change as needed
 params.normal_analysis = ""
 params.tumour_analysis = ""
 params.files_to_upload = []
 params.wf_name = ""
 params.wf_short_name = ""
 params.wf_version = ""
-params.container_version = ''
-params.cpus = 1
-params.mem = 1  // GB
-params.publish_dir = ""
+
 
 process payloadGenVariantCalling {
-  container "quay.io/icgc-argo/payload-gen-variant-calling:payload-gen-variant-calling.${params.container_version ?: version}"
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
   cpus params.cpus
   memory "${params.mem} GB"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
@@ -56,7 +73,7 @@ process payloadGenVariantCalling {
   script:
     args_tumour_analysis = !tumour_analysis.empty() ? "-t ${tumour_analysis}" : ""
     """
-    payload-gen-variant-calling.py \
+    main.py \
          -f ${files_to_upload} \
          -n ${normal_analysis} \
          -r ${workflow.runName} \
@@ -65,4 +82,17 @@ process payloadGenVariantCalling {
          -s ${wf_short_name} \
          -v ${wf_version} ${args_tumour_analysis}
     """
+}
+
+// this provides an entry point for this main script, so it can be run directly without clone the repo
+// using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
+workflow {
+  payloadGenVariantCalling(
+    file(params.normal_analysis),
+    file(params.tumour_analysis),
+    Channel.fromPath(params.files_to_upload).collect(),
+    params.wf_name,
+    params.wf_short_name,
+    params.wf_version
+  )
 }
