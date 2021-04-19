@@ -1,6 +1,6 @@
 {
     "name": "payload-gen-variant-calling",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "A tool to generate SONG payloads for variant calling workflows",
     "main": "main.nf",
     "deprecated": false,
