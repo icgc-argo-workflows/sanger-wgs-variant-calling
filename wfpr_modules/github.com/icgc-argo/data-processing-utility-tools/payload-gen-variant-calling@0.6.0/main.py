@@ -43,7 +43,7 @@ variant_type_to_data_type_etc = {
     'brass-supplement': ['Structural Variation', ['SV Supplement', None], ['BRASS']],
     'timings-supplement': ['Quality Control Metrics', ['Analysis QC', ['Runtime Stats']], None, None],
     'bas_metrics': ['Quality Control Metrics', ['Aligned Reads QC', ['Alignment Metrics']], ['Sanger:bam_stats']],
-    'contamination_metrics': ['Quality Control Metrics', ['Analysis QC', ['Cross Sample Contamination']], ['Sanger:verifyBamHomChk'], ['GATK:CalculateContamination']],
+    'contamination_metrics': ['Quality Control Metrics', ['Sample QC', ['Cross Sample Contamination']], ['Sanger:verifyBamHomChk'], ['GATK:CalculateContamination']],
     'ascat_metrics': ['Quality Control Metrics', ['Analysis QC', ['Ploidy', 'Tumour Purity']], ['ASCAT']],
     'genotyped_gender_metrics': ['Quality Control Metrics', ['Analysis QC', ['Genotyping Stats']], ['Sanger:compareBamGenotypes']],
     'mutect_filtering_metrics': ['Quality Control Metrics', ['Analysis QC', ['Variant Filtering Stats']], [], ['GATK:FilterMutectCalls']],
