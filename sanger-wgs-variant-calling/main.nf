@@ -162,7 +162,11 @@ params.cleanup = true
 
 params.api_token = ""
 params.song_url = ""
+params.song_container = ""
+params.song_container_version = ""
 params.score_url = ""
+params.score_container = ""
+params.score_container_version = ""
 
 params.cpus = 1
 params.mem = 1
@@ -187,7 +191,11 @@ download_params = [
     'max_retries': params.max_retries,
     'first_retry_wait_time': params.first_retry_wait_time,
     'song_url': params.song_url,
+    'song_container': params.song_container,
+    'song_container_version': params.song_container_version,
     'score_url': params.score_url,
+    'score_container': params.score_container,
+    'score_container_version': params.score_container_version,
     'api_token': params.api_token,
     *:(params.download ?: [:])
 ]
@@ -263,14 +271,18 @@ upload_params = [
     'max_retries': params.max_retries,
     'first_retry_wait_time': params.first_retry_wait_time,
     'song_url': params.song_url,
+    'song_container': params.song_container,
+    'song_container_version': params.song_container_version,
     'score_url': params.score_url,
+    'score_container': params.score_container,
+    'score_container_version': params.score_container_version,
     'api_token': params.api_token,
     *:(params.upload ?: [:])
 ]
 
 
 // Include all modules and pass params
-include { SongScoreDownload as dnldT; SongScoreDownload as dnldN } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-download@2.6.1/main.nf' params(download_params)
+include { SongScoreDownload as dnldT; SongScoreDownload as dnldN } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-download@2.9.0/main.nf' params(download_params)
 include { generateBas as basT; generateBas as basN; } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/generate-bas.0.2.1.0/tools/generate-bas/generate-bas' params(generateBas_params)
 include { sangerWgsVariantCaller as sangerWgs } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/sanger-wgs-variant-caller.2.1.0-9/tools/sanger-wgs-variant-caller/sanger-wgs-variant-caller' params(sangerWgsVariantCaller_params)
 include { repackSangerResults as repack } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/repack-sanger-results.0.2.0.0/tools/repack-sanger-results/repack-sanger-results' params(repackSangerResults_params)
@@ -279,7 +291,7 @@ include { prepSangerSupplement as prepSupp } from './modules/raw.githubuserconte
 include { prepSangerQc as prepQc } from './modules/raw.githubusercontent.com/icgc-argo/variant-calling-tools/prep-sanger-qc.0.1.3.0/tools/prep-sanger-qc/prep-sanger-qc' params(prepSangerQc_params)
 include { extractFilesFromTarball as extractVarSnv; extractFilesFromTarball as extractVarIndel; extractFilesFromTarball as extractVarCnv; extractFilesFromTarball as extractVarSv } from './modules/raw.githubusercontent.com/icgc-argo/data-processing-utility-tools/extract-files-from-tarball.0.2.0.0/tools/extract-files-from-tarball/extract-files-from-tarball' params(extractSangerCall_params)
 include { payloadGenVariantCalling as pGenVarSnv; payloadGenVariantCalling as pGenVarIndel; payloadGenVariantCalling as pGenVarCnv; payloadGenVariantCalling as pGenVarSv; payloadGenVariantCalling as pGenVarSupp; payloadGenVariantCalling as pGenQc } from "./wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/payload-gen-variant-calling@0.6.0/main.nf" params(payloadGenVariantCall_params)
-include { SongScoreUpload as upSnv; SongScoreUpload as upIndel; SongScoreUpload as upCnv; SongScoreUpload as upSv; SongScoreUpload as upQc; SongScoreUpload as upSupp} from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(upload_params)
+include { SongScoreUpload as upSnv; SongScoreUpload as upIndel; SongScoreUpload as upCnv; SongScoreUpload as upSv; SongScoreUpload as upQc; SongScoreUpload as upSupp} from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.2/main.nf' params(upload_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/cleanup-workdir@1.0.0/main'
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.0/main'
 include { payloadAddUniformIds as pAddIdT; payloadAddUniformIds as pAddIdN } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/payload-add-uniform-ids@0.1.1/main'
@@ -430,12 +442,12 @@ workflow SangerWgs {
 
         // upload variant results
         if (!local_mode) {
-            upSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload)
-            upIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload)
-            upCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload)
-            upSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload)
-            upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload)
-            upQc(study_id, pGenQc.out.payload, pGenQc.out.files_to_upload)
+            upSnv(study_id, pGenVarSnv.out.payload, pGenVarSnv.out.files_to_upload, '')
+            upIndel(study_id, pGenVarIndel.out.payload, pGenVarIndel.out.files_to_upload, '')
+            upCnv(study_id, pGenVarCnv.out.payload, pGenVarCnv.out.files_to_upload, '')
+            upSv(study_id, pGenVarSv.out.payload, pGenVarSv.out.files_to_upload, '')
+            upSupp(study_id, pGenVarSupp.out.payload, pGenVarSupp.out.files_to_upload, '')
+            upQc(study_id, pGenQc.out.payload, pGenQc.out.files_to_upload, '')
         }
 
         if (params.cleanup) {
