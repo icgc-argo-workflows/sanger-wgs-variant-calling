@@ -1,6 +1,6 @@
 {
     "name": "song-score-upload",
-    "version": "2.9.2",
+    "version": "2.9.3",
     "description": "SONG/SCORE upload",
     "main": "main.nf",
     "deprecated": false,
