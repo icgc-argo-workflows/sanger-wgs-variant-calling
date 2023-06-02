@@ -1,6 +1,6 @@
 FROM python:3.7.9
 
-LABEL org.opencontainers.image.source https://github.com/icgc-argo/data-processing-utility-tools
+LABEL org.opencontainers.image.source https://github.com/icgc-argo-workflows/data-processing-utility-tools
 
 RUN groupadd -g 1000 ubuntu && \
     useradd -l -u 1000 -g ubuntu ubuntu && \

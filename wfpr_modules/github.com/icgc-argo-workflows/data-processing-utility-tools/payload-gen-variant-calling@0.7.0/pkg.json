@@ -1,6 +1,6 @@
 {
     "name": "payload-gen-variant-calling",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "description": "A tool to generate SONG payloads for variant calling workflows",
     "main": "main.nf",
     "deprecated": false,
@@ -11,14 +11,14 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/icgc-argo/data-processing-utility-tools.git"
+        "url": "https://github.com/icgc-argo-workflows/data-processing-utility-tools.git"
     },
     "container": {
         "registries": [
             {
                 "registry": "ghcr.io",
                 "type": "docker",
-                "org": "icgc-argo",
+                "org": "icgc-argo-workflows",
                 "default": true
             }
         ]
@@ -31,6 +31,6 @@
         }
     ],
     "license": "GNU Affero General Public License v3",
-    "bugReport": "https://github.com/icgc-argo/data-processing-utility-tools/issues",
-    "homepage": "https://github.com/icgc-argo/data-processing-utility-tools#readme"
+    "bugReport": "https://github.com/icgc-argo-workflows/data-processing-utility-tools/issues",
+    "homepage": "https://github.com/icgc-argo-workflows/data-processing-utility-tools#readme"
 }
