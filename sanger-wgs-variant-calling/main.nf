@@ -9,7 +9,7 @@ version = '2.1.0-9.7.0'
                     ICGC ARGO Sanger WGS Variant Calling Workflow
 ========================================================================================
 #### Homepage / Documentation
-https://github.com/icgc-argo/sanger-wgs-variant-calling
+https://github.com/icgc-argo-workflows/sanger-wgs-variant-calling
 #### Authors
 Junjun Zhang @junjun-zhang <junjun.zhang@oicr.on.ca>
 Linda Xiang @lindaxiang <linda.xiang@oicr.on.ca>
@@ -159,19 +159,22 @@ params.normal_extra_info = "NO_FILE6"
 // dir for outputs, must be set when running in local mode
 params.publish_dir = ""
 params.cleanup = true
-
-params.api_token = ""
-params.song_url = ""
-params.song_container = ""
-params.song_container_version = ""
-params.score_url = ""
-params.score_container = ""
-params.score_container_version = ""
-
 params.cpus = 1
 params.mem = 1
 params.max_retries = 5  // set to 0 will disable retry
 params.first_retry_wait_time = 1  // in seconds
+
+// song/score setting
+params.song_url = ""
+params.song_container = "ghcr.io/overture-stack/song-client"
+params.song_container_version = "5.0.2"
+params.score_url = ""
+params.score_container = "ghcr.io/overture-stack/score"
+params.score_container_version = "5.9.0"
+params.score_mem = 20
+params.score_cpus = 8
+params.score_force = false
+params.api_token = ""
 
 params.download = [:]
 params.generateBas = [:]
@@ -186,16 +189,19 @@ params.upload = [:]
 params.extractSangerCall = [:]
 
 download_params = [
-    'cpus': params.cpus,
-    'mem': params.mem,
     'max_retries': params.max_retries,
     'first_retry_wait_time': params.first_retry_wait_time,
     'song_url': params.song_url,
     'song_container': params.song_container,
     'song_container_version': params.song_container_version,
+    'song_cpus': params.cpus,
+    'song_mem': params.mem,
     'score_url': params.score_url,
     'score_container': params.score_container,
     'score_container_version': params.score_container_version,
+    'score_cpus' : params.score_cpus,
+    'score_mem' : params.score_mem,
+    'score_transport_mem' : params.score_mem, 
     'api_token': params.api_token,
     *:(params.download ?: [:])
 ]
@@ -266,16 +272,20 @@ payloadGenVariantCall_params = [
 ]
 
 upload_params = [
-    'cpus': params.cpus,
-    'mem': params.mem,
     'max_retries': params.max_retries,
     'first_retry_wait_time': params.first_retry_wait_time,
     'song_url': params.song_url,
     'song_container': params.song_container,
     'song_container_version': params.song_container_version,
+    'song_cpus': params.cpus,
+    'song_mem': params.mem,
     'score_url': params.score_url,
     'score_container': params.score_container,
     'score_container_version': params.score_container_version,
+    'score_force' : params.score_force,
+    'score_cpus' : params.score_cpus,
+    'score_mem' : params.score_mem,
+    'score_transport_mem' : params.score_mem,
     'api_token': params.api_token,
     *:(params.upload ?: [:])
 ]
