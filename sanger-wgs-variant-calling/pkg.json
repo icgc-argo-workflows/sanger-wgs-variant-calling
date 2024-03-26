@@ -1,6 +1,6 @@
 {
     "name": "sanger-wgs-variant-calling",
-    "version": "2.1.0-9.7.0",
+    "version": "2.1.0-9.7.1",
     "description": "ICGC ARGO Sanger WGS Variant Calling Workflow",
     "main": "main.nf",
     "deprecated": false,

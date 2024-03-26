@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
-nextflow.preview.dsl=2
+nextflow.enable.dsl = 2
 name='sanger-wgs-variant-calling'
 short_name='sanger-wgs'
-version = '2.1.0-9.7.0'
+version = '2.1.0-9.7.1'
 
 /*
 ========================================================================================
